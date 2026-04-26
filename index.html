@@ -3,47 +3,371 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agent Demo</title>
+<title>AI 电商经营飞轮</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap');
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Noto Sans SC',-apple-system,sans-serif;background:#f5f5f7;min-height:100vh;display:flex;align-items:center;justify-content:center}
-  .container{max-width:800px;width:100%;padding:40px 24px}
-  h1{font-size:28px;font-weight:700;color:#1a1a2e;text-align:center;margin-bottom:8px}
-  .subtitle{text-align:center;color:#6b7280;font-size:14px;margin-bottom:40px}
-  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-  .card{background:#fff;border-radius:16px;padding:28px 24px;border:1px solid #ebebef;cursor:pointer;transition:all .2s;text-decoration:none;color:inherit}
-  .card:hover{transform:translateY(-4px);box-shadow:0 12px 24px rgba(0,0,0,.08)}
-  .card-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:22px}
-  .card:nth-child(1) .card-icon{background:linear-gradient(135deg,#8b5cf6,#a78bfa);color:#fff}
-  .card:nth-child(2) .card-icon{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff}
-  .card:nth-child(3) .card-icon{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#fff}
-  .card-title{font-size:16px;font-weight:600;color:#1a1a2e;margin-bottom:8px}
-  .card-desc{font-size:13px;color:#6b7280;line-height:1.6}
-  @media(max-width:640px){.cards{grid-template-columns:1fr}}
+  html{scroll-behavior:smooth}
+  body{font-family:'Noto Sans SC',-apple-system,sans-serif;background:#0a0a14;color:#e0e0e8;overflow-x:hidden}
+
+  /* ── Hero ── */
+  .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;padding:60px 24px}
+  .hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(139,92,246,.12) 0%,transparent 70%);pointer-events:none}
+  .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.25);border-radius:100px;padding:8px 20px;font-size:13px;color:#a78bfa;margin-bottom:32px;opacity:0;animation:fadeUp .8s .2s forwards}
+  .hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:pulse 2s infinite}
+  .hero h1{font-size:clamp(36px,6vw,64px);font-weight:900;line-height:1.15;margin-bottom:20px;opacity:0;animation:fadeUp .8s .4s forwards}
+  .hero h1 .gr1{background:linear-gradient(135deg,#8b5cf6,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .hero h1 .gr2{background:linear-gradient(135deg,#6366f1,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .hero h1 .gr3{background:linear-gradient(135deg,#f59e0b,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .hero-sub{font-size:clamp(16px,2.5vw,20px);color:#9ca3af;max-width:560px;line-height:1.7;opacity:0;animation:fadeUp .8s .6s forwards}
+  .scroll-hint{position:absolute;bottom:40px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;color:#6b7280;opacity:0;animation:fadeUp .8s 1.2s forwards}
+  .scroll-hint .arrow{width:20px;height:20px;border-right:2px solid #6b7280;border-bottom:2px solid #6b7280;transform:rotate(45deg);animation:bounce 2s infinite}
+
+  /* ── Flow Container ── */
+  .flow{max-width:1000px;margin:0 auto;padding:0 24px 120px;position:relative}
+  .flow::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,transparent,rgba(139,92,246,.3) 10%,rgba(99,102,241,.3) 50%,rgba(245,158,11,.3) 90%,transparent);transform:translateX(-50%)}
+
+  /* ── Agent Block ── */
+  .agent-block{position:relative;margin-bottom:120px;opacity:0;transform:translateY(60px);transition:all .8s cubic-bezier(.16,1,.3,1)}
+  .agent-block.visible{opacity:1;transform:translateY(0)}
+
+  /* ── Connector ── */
+  .connector{display:flex;flex-direction:column;align-items:center;margin-bottom:120px;position:relative;z-index:2}
+  .connector-line{width:2px;height:80px;position:relative;overflow:hidden}
+  .connector-line::after{content:'';position:absolute;top:-100%;left:0;width:100%;height:100%;background:linear-gradient(to bottom,transparent,#8b5cf6);animation:flowDown 2s infinite}
+  .connector.c2 .connector-line::after{background:linear-gradient(to bottom,transparent,#6366f1)}
+  .connector-arrow{width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:10px solid #8b5cf6;margin-top:-1px}
+  .connector.c2 .connector-arrow{border-top-color:#6366f1}
+  .connector-output{margin-top:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 24px;display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+  .connector-output span{font-size:13px;color:#9ca3af;white-space:nowrap}
+  .connector{opacity:0;transform:translateY(40px);transition:all .6s cubic-bezier(.16,1,.3,1)}
+  .connector.visible{opacity:1;transform:translateY(0)}
+
+  /* ── Agent Card ── */
+  .agent-card{border-radius:24px;padding:48px;position:relative;overflow:hidden}
+  .agent-card::before{content:'';position:absolute;inset:0;border-radius:24px;padding:1px;background:linear-gradient(135deg,rgba(139,92,246,.4),transparent 60%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+
+  .agent-card.purple{background:linear-gradient(135deg,rgba(139,92,246,.08),rgba(139,92,246,.02))}
+  .agent-card.purple::before{background:linear-gradient(135deg,rgba(139,92,246,.4),transparent 60%)}
+  .agent-card.blue{background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(99,102,241,.02))}
+  .agent-card.blue::before{background:linear-gradient(135deg,rgba(99,102,241,.4),transparent 60%)}
+  .agent-card.amber{background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(245,158,11,.02))}
+  .agent-card.amber::before{background:linear-gradient(135deg,rgba(245,158,11,.4),transparent 60%)}
+
+  /* Step number */
+  .step-num{position:absolute;top:-20px;left:50%;transform:translateX(-50%);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;z-index:3}
+  .purple .step-num{background:linear-gradient(135deg,#8b5cf6,#a78bfa);box-shadow:0 0 24px rgba(139,92,246,.5)}
+  .blue .step-num{background:linear-gradient(135deg,#6366f1,#818cf8);box-shadow:0 0 24px rgba(99,102,241,.5)}
+  .amber .step-num{background:linear-gradient(135deg,#f59e0b,#fbbf24);box-shadow:0 0 24px rgba(245,158,11,.5)}
+
+  .agent-header{display:flex;align-items:center;gap:16px;margin-bottom:12px}
+  .agent-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;flex-shrink:0}
+  .purple .agent-icon{background:linear-gradient(135deg,#8b5cf6,#a78bfa)}
+  .blue .agent-icon{background:linear-gradient(135deg,#6366f1,#818cf8)}
+  .amber .agent-icon{background:linear-gradient(135deg,#f59e0b,#fbbf24)}
+  .agent-name{font-size:24px;font-weight:700}
+  .agent-tagline{font-size:15px;color:#9ca3af;margin-bottom:36px;line-height:1.6}
+
+  /* ── Steps ── */
+  .steps{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px}
+  .step{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:20px;opacity:0;transform:translateY(20px);transition:all .5s cubic-bezier(.16,1,.3,1)}
+  .agent-block.visible .step{opacity:1;transform:translateY(0)}
+  .agent-block.visible .step:nth-child(1){transition-delay:.15s}
+  .agent-block.visible .step:nth-child(2){transition-delay:.25s}
+  .agent-block.visible .step:nth-child(3){transition-delay:.35s}
+  .agent-block.visible .step:nth-child(4){transition-delay:.45s}
+  .step-icon{font-size:24px;margin-bottom:10px}
+  .step-title{font-size:14px;font-weight:600;margin-bottom:6px}
+  .step-desc{font-size:12.5px;color:#9ca3af;line-height:1.6}
+
+  /* ── Value Box ── */
+  .value-box{border-radius:14px;padding:20px 24px;display:flex;align-items:center;gap:16px;opacity:0;transform:translateY(20px);transition:all .6s cubic-bezier(.16,1,.3,1) .55s}
+  .agent-block.visible .value-box{opacity:1;transform:translateY(0)}
+  .purple .value-box{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2)}
+  .blue .value-box{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2)}
+  .amber .value-box{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2)}
+  .value-icon{font-size:32px;flex-shrink:0}
+  .value-text{font-size:15px;font-weight:600;line-height:1.6}
+  .value-text .highlight{font-size:22px;font-weight:900}
+  .purple .value-text .highlight{color:#a78bfa}
+  .blue .value-text .highlight{color:#818cf8}
+  .amber .value-text .highlight{color:#fbbf24}
+
+  /* ── CTA ── */
+  .agent-cta{display:inline-flex;align-items:center;gap:8px;margin-top:20px;padding:10px 24px;border-radius:10px;font-size:14px;font-weight:500;text-decoration:none;transition:all .2s}
+  .purple .agent-cta{background:rgba(139,92,246,.15);color:#c084fc;border:1px solid rgba(139,92,246,.25)}
+  .purple .agent-cta:hover{background:rgba(139,92,246,.25)}
+  .blue .agent-cta{background:rgba(99,102,241,.15);color:#a5b4fc;border:1px solid rgba(99,102,241,.25)}
+  .blue .agent-cta:hover{background:rgba(99,102,241,.25)}
+  .amber .agent-cta{background:rgba(245,158,11,.15);color:#fcd34d;border:1px solid rgba(245,158,11,.25)}
+  .amber .agent-cta:hover{background:rgba(245,158,11,.25)}
+
+  /* ── Flywheel Section ── */
+  .flywheel{text-align:center;padding:80px 24px 120px;position:relative;opacity:0;transform:translateY(40px);transition:all .8s cubic-bezier(.16,1,.3,1)}
+  .flywheel.visible{opacity:1;transform:translateY(0)}
+  .flywheel h2{font-size:clamp(24px,4vw,36px);font-weight:900;margin-bottom:16px}
+  .flywheel h2 span{background:linear-gradient(135deg,#8b5cf6,#6366f1,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .flywheel p{font-size:16px;color:#9ca3af;max-width:480px;margin:0 auto 40px;line-height:1.7}
+  .flywheel-loop{display:inline-flex;align-items:center;gap:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:16px 32px;font-size:15px;font-weight:500}
+  .flywheel-loop .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .flywheel-loop .arr{color:#6b7280;font-size:18px}
+  .flywheel-loop .d1{background:#8b5cf6}
+  .flywheel-loop .d2{background:#6366f1}
+  .flywheel-loop .d3{background:#f59e0b}
+
+  /* ── Stats Row ── */
+  .stats{display:flex;gap:32px;justify-content:center;margin-top:48px;flex-wrap:wrap}
+  .stat{text-align:center}
+  .stat-val{font-size:clamp(28px,5vw,40px);font-weight:900;background:linear-gradient(135deg,#c084fc,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .stat-label{font-size:13px;color:#6b7280;margin-top:4px}
+
+  /* ── Animations ── */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  @keyframes bounce{0%,20%,50%,80%,100%{transform:rotate(45deg) translateY(0)}40%{transform:rotate(45deg) translateY(-6px)}60%{transform:rotate(45deg) translateY(-3px)}}
+  @keyframes flowDown{0%{top:-100%}100%{top:100%}}
+
+  /* ── Responsive ── */
+  @media(max-width:640px){
+    .agent-card{padding:32px 20px}
+    .steps{grid-template-columns:1fr}
+    .connector-output{flex-direction:column;align-items:center;gap:8px}
+    .flywheel-loop{flex-direction:column;gap:8px;border-radius:16px;padding:20px 28px}
+    .flywheel-loop .arr{transform:rotate(90deg)}
+    .stats{gap:20px}
+  }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>Agent Demo</h1>
-  <p class="subtitle">Choose an agent to explore</p>
-  <div class="cards">
-    <a class="card" href="/competitor">
-      <div class="card-icon">R</div>
-      <div class="card-title">竞品复刻 Agent</div>
-      <div class="card-desc">竞品复刻 → 测品 Agent Demo</div>
-    </a>
-    <a class="card" href="/selection">
-      <div class="card-icon">S</div>
-      <div class="card-title">选品 Agent</div>
-      <div class="card-desc">选品 Agent Demo</div>
-    </a>
-    <a class="card" href="/tracking">
-      <div class="card-icon">T</div>
-      <div class="card-title">竞品追踪 Agent</div>
-      <div class="card-desc">竞品追踪 Agent Demo</div>
-    </a>
+
+<!-- ══════════ Hero ══════════ -->
+<section class="hero">
+  <div class="hero-badge">AI 驱动电商经营</div>
+  <h1>
+    <span class="gr1">选品</span> &rarr;
+    <span class="gr2">复刻</span> &rarr;
+    <span class="gr3">追踪</span><br>
+    全链路自动化飞轮
+  </h1>
+  <p class="hero-sub">三个 AI Agent 协同工作，从发现爆品到上架测试到竞品监控，帮商家把经营效率拉满</p>
+  <div class="scroll-hint">
+    <span>向下滚动</span>
+    <div class="arrow"></div>
   </div>
+</section>
+
+<!-- ══════════ Flow ══════════ -->
+<div class="flow">
+
+  <!-- ── Step 1: 选品 Agent ── -->
+  <div class="agent-block" id="ab1">
+    <div class="agent-card purple">
+      <div class="step-num">1</div>
+      <div class="agent-header">
+        <div class="agent-icon">S</div>
+        <div class="agent-name">选品 Agent</div>
+      </div>
+      <p class="agent-tagline">全网扫描 + 数据交叉验证，帮你在蓝海窗口关闭前锁定高潜力商品</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-icon">📡</div>
+          <div class="step-title">全网趋势扫描</div>
+          <div class="step-desc">每日自动扫描抖音 + 1688，替代人工 2 周选品，<b>节省 90% 时间</b></div>
+        </div>
+        <div class="step">
+          <div class="step-icon">📊</div>
+          <div class="step-title">多维度数据分析</div>
+          <div class="step-desc">搜索量、竞争密度、视频播放、供给信号四维交叉验证，<b>决策有据可依</b></div>
+        </div>
+        <div class="step">
+          <div class="step-icon">🎯</div>
+          <div class="step-title">机会窗口识别</div>
+          <div class="step-desc">区分确认跟进 / 截流机会 / 抢先布局三种时机，精准把握入场节奏</div>
+        </div>
+        <div class="step">
+          <div class="step-icon">💎</div>
+          <div class="step-title">痛点挖掘 & 卖点提炼</div>
+          <div class="step-desc">从 TOP30 差评中自动提炼卖点，上架即命中用户真实需求</div>
+        </div>
+      </div>
+      <div class="value-box">
+        <div class="value-icon">🚀</div>
+        <div class="value-text">比竞争对手<span class="highlight">早 3 天</span>发现爆品信号，在蓝海窗口抢先入场</div>
+      </div>
+      <a class="agent-cta" href="/selection">查看 Demo &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Connector 1→2 -->
+  <div class="connector c1" id="cn1">
+    <div class="connector-line"></div>
+    <div class="connector-arrow"></div>
+    <div class="connector-output">
+      <span>📦 高潜力商品清单</span>
+      <span>🎯 竞品清单</span>
+      <span>✨ 卖点策略</span>
+    </div>
+  </div>
+
+  <!-- ── Step 2: 竞品复刻 Agent ── -->
+  <div class="agent-block" id="ab2">
+    <div class="agent-card blue">
+      <div class="step-num">2</div>
+      <div class="agent-header">
+        <div class="agent-icon">R</div>
+        <div class="agent-name">竞品复刻 Agent</div>
+      </div>
+      <p class="agent-tagline">一键解构竞品，AI 生成 4 套视觉方案并行测试，用数据选出赢家</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-icon">🔍</div>
+          <div class="step-title">竞品链接解构</div>
+          <div class="step-desc">一键拆解对手主图 / 标题 / SKU / 定价策略，<b>知己知彼</b></div>
+        </div>
+        <div class="step">
+          <div class="step-icon">🎨</div>
+          <div class="step-title">智能素材生成</div>
+          <div class="step-desc">AI 自动生成主图 + SKU图 + 详情页，<b>48 小时从 0 到上架</b></div>
+        </div>
+        <div class="step">
+          <div class="step-icon">🧬</div>
+          <div class="step-title">AI 裂变 4 套视觉方案</div>
+          <div class="step-desc">简约 / 场景 / 科技 / 色彩矩阵四种风格，<b>效率翻 4 倍</b></div>
+        </div>
+        <div class="step">
+          <div class="step-icon">🏆</div>
+          <div class="step-title">3 天 AB 测试选赢家</div>
+          <div class="step-desc">数据驱动筛选最优方案（CTR 6.8%+），<b>告别盲目试错</b></div>
+        </div>
+      </div>
+      <div class="value-box">
+        <div class="value-icon">⚡</div>
+        <div class="value-text"><span class="highlight">48 小时</span>从 0 到上架，4 套方案并行测试，用数据而非直觉做决策</div>
+      </div>
+      <a class="agent-cta" href="/competitor">查看 Demo &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Connector 2→3 -->
+  <div class="connector c2" id="cn2">
+    <div class="connector-line"></div>
+    <div class="connector-arrow"></div>
+    <div class="connector-output">
+      <span>🎨 上架素材包</span>
+      <span>🏆 赢家方案</span>
+      <span>📋 竞品监控清单</span>
+    </div>
+  </div>
+
+  <!-- ── Step 3: 竞品追踪 Agent ── -->
+  <div class="agent-block" id="ab3">
+    <div class="agent-card amber">
+      <div class="step-num">3</div>
+      <div class="agent-header">
+        <div class="agent-icon">T</div>
+        <div class="agent-name">竞品追踪 Agent</div>
+      </div>
+      <p class="agent-tagline">7x24 小时盯盘，竞品一有动作立刻自动响应，让你永远快人一步</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-icon">👁️</div>
+          <div class="step-title">每日自动扫描 8+ 竞品</div>
+          <div class="step-desc">24 小时不间断监控，<b>再也不会错过竞品动态</b></div>
+        </div>
+        <div class="step">
+          <div class="step-icon">🔔</div>
+          <div class="step-title">价格 / 素材 / SKU 变动检测</div>
+          <div class="step-desc">四维变动秒级感知，<b>信息差降为零</b></div>
+        </div>
+        <div class="step">
+          <div class="step-icon">⚙️</div>
+          <div class="step-title">预设规则自动执行</div>
+          <div class="step-desc">竞品降价 >10%，3 分钟内自动跟价，无需人工干预</div>
+        </div>
+        <div class="step">
+          <div class="step-icon">📈</div>
+          <div class="step-title">周报生成 & 效果度量</div>
+          <div class="step-desc">自动生成周报 + ROI 度量，<b>管理者一目了然</b></div>
+        </div>
+      </div>
+      <div class="value-box">
+        <div class="value-icon">📈</div>
+        <div class="value-text">自动跟价后转化率提升 <span class="highlight">16.7%</span>，GPM 提升 <span class="highlight">10.9%</span></div>
+      </div>
+      <a class="agent-cta" href="/tracking">查看 Demo &rarr;</a>
+    </div>
+  </div>
+
 </div>
+
+<!-- ══════════ Flywheel Summary ══════════ -->
+<section class="flywheel" id="fw">
+  <h2>形成<span>持续进化</span>的经营飞轮</h2>
+  <p>竞品追踪发现的新机会自动回流到选品，三个 Agent 形成闭环，越转越快</p>
+  <div class="flywheel-loop">
+    <span class="dot d1"></span> 选品
+    <span class="arr">&rarr;</span>
+    <span class="dot d2"></span> 复刻
+    <span class="arr">&rarr;</span>
+    <span class="dot d3"></span> 追踪
+    <span class="arr">&rarr;</span>
+    <span class="dot d1"></span> 选品 ...
+  </div>
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-val" data-target="90" data-suffix="%">0%</div>
+      <div class="stat-label">选品时间节省</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" data-target="48" data-suffix="h">0h</div>
+      <div class="stat-label">从 0 到上架</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" data-target="4" data-suffix="x">0x</div>
+      <div class="stat-label">测试效率提升</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" data-target="16.7" data-suffix="%">0%</div>
+      <div class="stat-label">转化率提升</div>
+    </div>
+  </div>
+</section>
+
+<script>
+// ── Intersection Observer for scroll animations ──
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      // Animate stat counters
+      if (e.target.id === 'fw') animateStats();
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.agent-block, .connector, .flywheel').forEach(el => io.observe(el));
+
+// ── Counter Animation ──
+let statsAnimated = false;
+function animateStats() {
+  if (statsAnimated) return;
+  statsAnimated = true;
+  document.querySelectorAll('.stat-val').forEach(el => {
+    const target = parseFloat(el.dataset.target);
+    const suffix = el.dataset.suffix;
+    const isFloat = target % 1 !== 0;
+    const duration = 1600;
+    const start = performance.now();
+    function tick(now) {
+      const p = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      const val = (target * ease);
+      el.textContent = (isFloat ? val.toFixed(1) : Math.round(val)) + suffix;
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+}
+</script>
 </body>
 </html>
