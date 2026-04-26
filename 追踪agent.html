@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>竞品追踪Agent Demo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Noto Sans SC',-apple-system,sans-serif;background:#f5f5f7;overflow:hidden}
+  .app{display:flex;height:100vh}
+  .sidebar{width:220px;background:#fff;border-right:1px solid #ebebef;display:flex;flex-direction:column;flex-shrink:0}
+  .sidebar-header{padding:18px 16px 12px;border-bottom:1px solid #f0f0f3;font-size:13px;color:#6b7280;display:flex;align-items:center;gap:8px}
+  .sidebar-new-btn{display:flex;align-items:center;gap:6px;padding:8px 10px;color:#6b7280;font-size:13px;margin:12px}
+  .sidebar-section{padding:4px 12px}
+  .sidebar-label{font-size:11px;color:#9ca3af;padding:4px 10px;margin-bottom:4px}
+  .sidebar-item{padding:8px 10px;font-size:13px;color:#6b7280;border-radius:8px;margin-bottom:2px}
+  .sidebar-item.active{background:#fef3c7;color:#d97706;font-weight:500}
+  .sidebar-footer{margin-top:auto;padding:12px 16px;border-top:1px solid #f0f0f3;display:flex;align-items:center;gap:8px}
+  .sidebar-avatar{width:28px;height:28px;border-radius:14px;background:#f59e0b;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600}
+  .sidebar-name{font-size:12px;font-weight:500}
+  .sidebar-sub{font-size:10px;color:#9ca3af}
+  .chat{flex:1;display:flex;flex-direction:column;min-width:0}
+  .chat-header{padding:14px 24px;border-bottom:1px solid #ebebef;background:#fff;display:flex;align-items:center;justify-content:space-between}
+  .chat-header-left{display:flex;align-items:center;gap:10px}
+  .agent-avatar{width:32px;height:32px;border-radius:16px;background:linear-gradient(135deg,#f59e0b,#fbbf24);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .agent-avatar-sm{width:28px;height:28px;border-radius:14px}
+  .chat-title{font-size:14px;font-weight:600}
+  .chat-status{font-size:11px;color:#10b981}
+  .chat-time{font-size:12px;color:#9ca3af}
+  .chat-messages{flex:1;overflow-y:auto;padding:20px 24px}
+  .msg{display:flex;gap:10px;margin-bottom:16px}
+  .msg.user{justify-content:flex-end}
+  .msg-bubble{max-width:80%;padding:12px 16px;font-size:13.5px;line-height:1.7;white-space:pre-line;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .msg.agent .msg-bubble{background:#fff;color:#1a1a2e;border:1px solid #ebebef;border-radius:16px 16px 16px 4px}
+  .msg.user .msg-bubble{background:#f59e0b;color:#fff;border-radius:16px 16px 4px 16px}
+  .quick-actions{padding:12px 24px 6px;display:flex;gap:8px;flex-wrap:wrap}
+  .quick-btn{padding:8px 16px;border-radius:20px;border:1px solid #f59e0b;background:#fffbeb;color:#d97706;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
+  .quick-btn:hover{background:#fef3c7}
+  .chat-input{padding:10px 24px 18px}
+  .input-box{border:1px solid #e0e0e6;border-radius:14px;padding:12px 16px;background:#fff;display:flex;align-items:center;gap:10px}
+  .input-placeholder{flex:1;color:#bbb;font-size:14px}
+  .input-send{width:32px;height:32px;border-radius:16px;background:#f59e0b;display:flex;align-items:center;justify-content:center;opacity:.4}
+  .toolbar{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .toolbar-item{padding:6px 12px;border-radius:8px;border:1px solid #ebebef;font-size:12px;color:#6b7280;background:#fff}
+  .panel{width:520px;background:#fff;border-left:1px solid #ebebef;overflow-y:auto;flex-shrink:0}
+  .panel-actions{display:flex;justify-content:flex-end;padding:10px 16px 0;gap:10px}
+  .panel-actions span{font-size:12px;color:#9ca3af;cursor:pointer}
+  .panel-header{padding:20px 28px 16px;border-bottom:1px solid #f0f0f3}
+  .panel-title{font-size:17px;font-weight:600;color:#1a1a2e}
+  .panel-desc{font-size:13px;color:#9ca3af;margin-top:6px}
+  .panel-body{padding:16px 28px 28px}
+
+  /* Change cards */
+  .change-card{border:1px solid #e8e8ec;border-radius:12px;margin-bottom:14px;overflow:hidden}
+  .change-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#fafafa}
+  .change-shop{font-size:13px;font-weight:600}
+  .change-type{font-size:11px;padding:3px 10px;border-radius:10px;font-weight:500}
+  .type-price{background:#fef2f2;color:#dc2626}
+  .type-image{background:#eff6ff;color:#2563eb}
+  .type-sku{background:#f0fdf4;color:#16a34a}
+  .type-title{background:#f5f3ff;color:#7c3aed}
+  .change-time{font-size:11px;color:#9ca3af}
+  .change-body{padding:14px 16px}
+  .change-compare{display:grid;grid-template-columns:1fr 28px 1fr;gap:0;align-items:center;margin-bottom:10px}
+  .change-before,.change-after{border-radius:8px;overflow:hidden;border:1px solid #f0f0f3}
+  .change-before{border-color:#fca5a5}
+  .change-after{border-color:#86efac}
+  .compare-label{font-size:10px;font-weight:600;text-align:center;padding:4px 0}
+  .label-before{color:#dc2626;background:#fef2f2}
+  .label-after{color:#16a34a;background:#f0fdf4}
+  .compare-arrow{text-align:center;font-size:18px;color:#9ca3af}
+  .change-before svg,.change-after svg{width:100%;display:block}
+  .change-detail{font-size:12px;color:#374151;line-height:1.6}
+  .change-action{margin-top:8px;padding:8px 12px;border-radius:8px;font-size:12px;line-height:1.5}
+  .action-auto{background:#f0fdf4;color:#166534;border:1px dashed #86efac}
+  .action-alert{background:#fef3c7;color:#92400e;border:1px dashed #fcd34d}
+
+  /* Report sections */
+  .report-stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+  .report-stat{background:#f8f8fb;border-radius:10px;padding:12px;text-align:center}
+  .report-stat-num{font-size:20px;font-weight:700;color:#d97706}
+  .report-stat-label{font-size:10px;color:#9ca3af;margin-top:2px}
+  .report-section{border:1px solid #e8e8ec;border-radius:12px;padding:16px;margin-bottom:14px}
+  .report-section-title{font-size:13px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  .report-item{padding:10px 12px;background:#f8f8fb;border-radius:8px;margin-bottom:6px;display:flex;align-items:flex-start;gap:8px}
+  .report-item:last-child{margin-bottom:0}
+  .report-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+  .icon-change{background:#eff6ff}
+  .icon-auto{background:#f0fdf4}
+  .icon-alert{background:#fef3c7}
+  .icon-up{background:#f0fdf4}
+  .icon-down{background:#fef2f2}
+  .report-item-content{flex:1}
+  .report-item-title{font-size:12px;font-weight:500;color:#1a1a2e}
+  .report-item-detail{font-size:11px;color:#6b7280;margin-top:2px}
+  .report-effect{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+  .effect-cell{background:#fff;border:1px solid #f0f0f3;border-radius:8px;padding:8px;text-align:center}
+  .effect-val{font-size:14px;font-weight:700}
+  .effect-up{color:#16a34a}
+  .effect-down{color:#dc2626}
+  .effect-label{font-size:9px;color:#9ca3af;margin-top:2px}
+  .effect-change{font-size:10px;font-weight:500}
+
+  .summary-card{border:2px solid #f59e0b;border-radius:12px;padding:18px;background:#fffbeb;margin-bottom:16px}
+  .summary-title{font-size:14px;font-weight:600;color:#d97706;margin-bottom:8px}
+  .summary-body{font-size:13px;color:#92400e;line-height:1.8}
+  .summary-body p{margin-bottom:4px}
+
+  .attention-card{border:2px solid #dc2626;border-radius:12px;padding:16px;background:#fef2f2;margin-bottom:16px}
+  .attention-title{font-size:13px;font-weight:600;color:#dc2626;margin-bottom:6px}
+  .attention-body{font-size:12px;color:#991b1b;line-height:1.6}
+
+  .cta-row{display:flex;gap:10px}
+  .cta-primary{flex:1;padding:12px 0;border-radius:10px;border:none;background:#f59e0b;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+  .cta-secondary{padding:12px 20px;border-radius:10px;border:1px solid #e8e8ec;background:#fff;color:#6b7280;font-size:14px;cursor:pointer;font-family:inherit}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-header"><span>≡</span> 收起历史对话</div>
+    <div class="sidebar-new-btn">✏️ 新对话</div>
+    <div class="sidebar-section"><div class="sidebar-label">今天</div><div class="sidebar-item active">💬 竞品变更通知</div><div class="sidebar-item">💬 本周追踪周报</div></div>
+    <div class="sidebar-section"><div class="sidebar-label">上周</div><div class="sidebar-item">💬 上周追踪周报</div><div class="sidebar-item">💬 异常预警 · 竞品清仓</div></div>
+    <div class="sidebar-footer"><div class="sidebar-avatar">C</div><div><div class="sidebar-name">Cristal的店铺</div><div class="sidebar-sub">追踪Agent · 专业版</div></div></div>
+  </div>
+
+  <div class="chat">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="agent-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <div><div class="chat-title">竞品追踪Agent</div><div class="chat-status">● 运行中 · 正在监控 8 个竞品</div></div>
+      </div>
+      <div class="chat-time">今天 09:00</div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg agent"><div class="agent-avatar agent-avatar-sm"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="msg-bubble">🔔 竞品变更提醒！今日扫描发现 3 个竞品发生了变化：
+
+1. 某白牌店铺A — 🖼️ 更换了主图
+2. ohsunny旗舰店 — 💰 降价12%（¥35.9 → ¥31.6）
+3. 蕉下旗舰店 — 🎨 新增了2个SKU颜色
+
+其中，ohsunny降价已触发你的自动跟价规则，我已自动将你的链接从¥19.9调至¥18.9。
+
+👉 右侧查看每个变更的详细对比。</div></div>
+
+      <div class="msg agent hidden" id="msg-1-agent"><div class="agent-avatar agent-avatar-sm"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="msg-bubble">📊 本周竞品追踪周报已生成！
+
+📅 统计周期：4月21日-27日
+🔍 监控竞品数：8个
+🔄 检测到变更：6次
+⚡ 自动执行动作：3次
+
+本周关键发现：
+• ohsunny降价后你自动跟价，转化率提升了18%
+• 某白牌店铺A换主图后其点击率提升，建议你也优化主图
+• 蕉下新增SKU暂未影响市场格局
+
+👉 右侧查看完整周报。</div></div>
+    </div>
+
+    <div class="quick-actions" id="quickActions"><button class="quick-btn" onclick="goStep(1)">📊 查看本周追踪周报</button></div>
+    <div class="chat-input">
+      <div class="input-box"><span class="input-placeholder">输入您想问的问题</span><span style="color:#d0d0d6;font-size:18px;">📎</span><div class="input-send"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg></div></div>
+      <div class="toolbar"><div class="toolbar-item">🎬 短视频创作</div><div class="toolbar-item">🖼️ 智能图片</div><div class="toolbar-item">📊 数据分析</div><div class="toolbar-item">🔍 智能选品</div><div class="toolbar-item">📈 经营诊断</div></div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="panel">
+    <div class="panel-actions"><span>↓ 保存报告</span><span>×</span></div>
+
+    <!-- ===== Panel 0: Change Detection ===== -->
+    <div id="panel-0">
+      <div class="panel-header"><div class="panel-title">🔔 竞品变更详情</div><div class="panel-desc">今日 09:00 扫描 · 发现 3 个竞品共 3 处变更</div></div>
+      <div class="panel-body">
+
+        <!-- Change 1: Image change -->
+        <div class="change-card">
+          <div class="change-header">
+            <div><div class="change-shop">某白牌店铺A · 防晒冰袖</div><div class="change-time">今日 02:30 检测到变更</div></div>
+            <span class="change-type type-image">🖼️ 主图更换</span>
+          </div>
+          <div class="change-body">
+            <div class="change-compare">
+              <div class="change-before">
+                <div class="compare-label label-before">变更前</div>
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="200" fill="#fff"/><ellipse cx="100" cy="60" rx="35" ry="18" fill="#d1d5db"/><rect x="65" y="60" width="70" height="90" rx="4" fill="#d1d5db"/><ellipse cx="100" cy="150" rx="35" ry="15" fill="#9ca3af"/><text x="100" y="185" text-anchor="middle" font-size="10" fill="#dc2626" font-weight="700">¥12.9</text><text x="100" y="30" text-anchor="middle" font-size="9" fill="#9ca3af">白底 · 无卖点标注</text></svg>
+              </div>
+              <div class="compare-arrow">→</div>
+              <div class="change-after">
+                <div class="compare-label label-after">变更后</div>
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="200" fill="#f0f4ff"/><ellipse cx="100" cy="60" rx="35" ry="18" fill="#93c5fd"/><rect x="65" y="60" width="70" height="90" rx="4" fill="#93c5fd"/><ellipse cx="100" cy="150" rx="35" ry="15" fill="#3b82f6"/><rect x="10" y="10" width="70" height="22" rx="4" fill="#2563eb"/><text x="45" y="25" text-anchor="middle" font-size="9" fill="#fff" font-weight="600">冰感面料</text><text x="100" y="185" text-anchor="middle" font-size="10" fill="#dc2626" font-weight="700">¥12.9</text></svg>
+              </div>
+            </div>
+            <div class="change-detail">
+              竞品将白底产品图升级为<b>浅蓝底+卖点标注</b>风格，新增了「冰感面料」角标。风格与你的变体C（科技感）形成竞争。
+            </div>
+            <div class="change-action action-alert">
+              ⚠️ <b>需要关注</b>：竞品主图升级可能提升其点击率。建议观察3天数据，如果你的点击率受影响，考虑优化主图增加更多信任标识（如检测报告截图）。
+            </div>
+          </div>
+        </div>
+
+        <!-- Change 2: Price drop -->
+        <div class="change-card">
+          <div class="change-header">
+            <div><div class="change-shop">ohsunny旗舰店 · 防晒冰袖</div><div class="change-time">今日 00:15 检测到变更</div></div>
+            <span class="change-type type-price">💰 价格变动</span>
+          </div>
+          <div class="change-body">
+            <div class="change-compare">
+              <div class="change-before">
+                <div class="compare-label label-before">变更前</div>
+                <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="120" fill="#fafafa"/><text x="100" y="55" text-anchor="middle" font-size="36" fill="#374151" font-weight="700">¥35.9</text><text x="100" y="80" text-anchor="middle" font-size="12" fill="#9ca3af">日均销量 2,800+</text><text x="100" y="100" text-anchor="middle" font-size="11" fill="#9ca3af">转化率 3.8%</text></svg>
+              </div>
+              <div class="compare-arrow">→</div>
+              <div class="change-after">
+                <div class="compare-label label-after">变更后</div>
+                <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg"><rect width="200" height="120" fill="#fafafa"/><text x="100" y="55" text-anchor="middle" font-size="36" fill="#dc2626" font-weight="700">¥31.6</text><text x="100" y="80" text-anchor="middle" font-size="13" fill="#dc2626" font-weight="600">↓ 降价12%</text><text x="100" y="100" text-anchor="middle" font-size="11" fill="#9ca3af">距你售价¥19.9仍有¥11.7差距</text></svg>
+              </div>
+            </div>
+            <div class="change-detail">
+              品牌商家降价12%，从¥35.9降至¥31.6。降价后仍高于你的售价¥19.9，价格优势依然存在。
+            </div>
+            <div class="change-action action-auto">
+              ✅ <b>已自动执行</b>：触发预设规则「品牌竞品降价超10%，我方跟降¥1」，已将你的售价从¥19.9调至¥18.9。执行时间：今日 00:18。
+            </div>
+          </div>
+        </div>
+
+        <!-- Change 3: New SKU -->
+        <div class="change-card">
+          <div class="change-header">
+            <div><div class="change-shop">蕉下旗舰店 · 防晒冰袖</div><div class="change-time">今日 06:00 检测到变更</div></div>
+            <span class="change-type type-sku">🎨 SKU变动</span>
+          </div>
+          <div class="change-body">
+            <div style="margin-bottom:10px">
+              <div style="font-size:12px;font-weight:500;margin-bottom:8px">新增颜色：</div>
+              <div style="display:flex;gap:8px">
+                <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:#f8f8fb;border-radius:8px;border:2px solid #86efac">
+                  <svg viewBox="0 0 30 30" width="30" height="30" xmlns="http://www.w3.org/2000/svg"><rect width="30" height="30" rx="4" fill="#c084fc"/></svg>
+                  <div><div style="font-size:12px;font-weight:500">薰衣草紫</div><div style="font-size:10px;color:#16a34a">NEW</div></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:#f8f8fb;border-radius:8px;border:2px solid #86efac">
+                  <svg viewBox="0 0 30 30" width="30" height="30" xmlns="http://www.w3.org/2000/svg"><rect width="30" height="30" rx="4" fill="#67e8f9"/></svg>
+                  <div><div style="font-size:12px;font-weight:500">冰川蓝</div><div style="font-size:10px;color:#16a34a">NEW</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="change-detail">
+              蕉下新增2个应季色：薰衣草紫和冰川蓝。目前你的链接已有浅蓝/浅粉/薄荷绿/奶白4色，颜色丰富度暂不落后。
+            </div>
+            <div class="change-action action-alert">
+              💡 <b>建议</b>：可考虑后续新增1-2个差异化颜色（如灰紫色、奶咖色），保持颜色竞争力。暂不紧急。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Panel 1: Weekly Report ===== -->
+    <div id="panel-1" class="hidden">
+      <div class="panel-header"><div class="panel-title">📊 竞品追踪周报</div><div class="panel-desc">统计周期：4月21日（周一）- 4月27日（周日）</div></div>
+      <div class="panel-body">
+        <!-- Summary Stats -->
+        <div class="report-stat-grid">
+          <div class="report-stat"><div class="report-stat-num">8</div><div class="report-stat-label">监控竞品数</div></div>
+          <div class="report-stat"><div class="report-stat-num">6</div><div class="report-stat-label">检测到变更</div></div>
+          <div class="report-stat"><div class="report-stat-num">3</div><div class="report-stat-label">自动执行动作</div></div>
+          <div class="report-stat"><div class="report-stat-num">1</div><div class="report-stat-label">需关注事项</div></div>
+        </div>
+
+        <!-- Section 1: Changes -->
+        <div class="report-section">
+          <div class="report-section-title">🔄 本周竞品变更汇总</div>
+          <div class="report-item">
+            <div class="report-icon icon-change">💰</div>
+            <div class="report-item-content">
+              <div class="report-item-title">ohsunny旗舰店 · 降价12%</div>
+              <div class="report-item-detail">¥35.9 → ¥31.6 · 4月27日</div>
+            </div>
+          </div>
+          <div class="report-item">
+            <div class="report-icon icon-change">🖼️</div>
+            <div class="report-item-content">
+              <div class="report-item-title">某白牌店铺A · 更换主图</div>
+              <div class="report-item-detail">白底→浅蓝底+卖点标注 · 4月27日</div>
+            </div>
+          </div>
+          <div class="report-item">
+            <div class="report-icon icon-change">🎨</div>
+            <div class="report-item-content">
+              <div class="report-item-title">蕉下旗舰店 · 新增2个SKU</div>
+              <div class="report-item-detail">薰衣草紫、冰川蓝 · 4月27日</div>
+            </div>
+          </div>
+          <div class="report-item">
+            <div class="report-icon icon-change">📝</div>
+            <div class="report-item-content">
+              <div class="report-item-title">某白牌店铺B · 修改标题</div>
+              <div class="report-item-detail">新增「冰感」「显瘦」关键词 · 4月24日</div>
+            </div>
+          </div>
+          <div class="report-item">
+            <div class="report-icon icon-change">💰</div>
+            <div class="report-item-content">
+              <div class="report-item-title">某白牌店铺C · 降价8%</div>
+              <div class="report-item-detail">¥15.9 → ¥14.6 · 4月23日</div>
+            </div>
+          </div>
+          <div class="report-item">
+            <div class="report-icon icon-change">🖼️</div>
+            <div class="report-item-content">
+              <div class="report-item-title">VVC旗舰店 · 更换详情页</div>
+              <div class="report-item-detail">新增UPF50+检测报告展示 · 4月22日</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Auto Actions -->
+        <div class="report-section">
+          <div class="report-section-title">⚡ Agent自动执行的动作</div>
+          <div class="report-item">
+            <div class="report-icon icon-auto">✅</div>
+            <div class="report-item-content">
+              <div class="report-item-title">自动跟价 · ohsunny降价响应</div>
+              <div class="report-item-detail">规则：品牌竞品降价超10%，跟降¥1<br>执行：你的售价 ¥19.9 → ¥18.9 · 4月27日 00:18</div>
+            </div>
+          </div>
+          <div class="report-item">
+            <div class="report-icon icon-auto">✅</div>
+            <div class="report-item-content">
+              <div class="report-item-title">自动跟价 · 白牌C降价响应</div>
+              <div class="report-item-detail">规则：同价格带竞品降价超5%，跟降同比例<br>执行：未触发（白牌C降价后仍低于你¥4+，不构成直接竞争）</div>
+            </div>
+          </div>
+          <div class="report-item">
+            <div class="report-icon icon-auto">✅</div>
+            <div class="report-item-content">
+              <div class="report-item-title">自动生成新主图 · VVC详情页更新响应</div>
+              <div class="report-item-detail">规则：竞品强化UPF认证展示时，自动在你的详情页增加检测报告截图<br>执行：已在你的详情页第2屏新增SGS检测报告图 · 4月22日 08:30</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Effect -->
+        <div class="report-section">
+          <div class="report-section-title">📈 执行效果追踪</div>
+          <div style="font-size:12px;color:#6b7280;margin-bottom:10px">Agent本周自动执行3个动作后，你的商品核心指标变化：</div>
+          <div class="report-effect">
+            <div class="effect-cell">
+              <div class="effect-val effect-up">6.8% → 7.2%</div>
+              <div class="effect-change effect-up">↑ +5.9%</div>
+              <div class="effect-label">点击率</div>
+            </div>
+            <div class="effect-cell">
+              <div class="effect-val effect-up">4.2% → 4.9%</div>
+              <div class="effect-change effect-up">↑ +16.7%</div>
+              <div class="effect-label">转化率</div>
+            </div>
+            <div class="effect-cell">
+              <div class="effect-val effect-up">128 → 142</div>
+              <div class="effect-change effect-up">↑ +10.9%</div>
+              <div class="effect-label">GPM</div>
+            </div>
+          </div>
+          <div style="margin-top:10px;padding:8px 12px;background:#f0fdf4;border-radius:8px;font-size:12px;color:#166534;line-height:1.5">
+            📊 <b>效果总结</b>：跟价后转化率提升最显著（+16.7%），降¥1带来的转化提升远超让利成本。详情页增加检测报告后点击率也有小幅提升。
+          </div>
+        </div>
+
+        <!-- Section 4: Attention -->
+        <div class="attention-card">
+          <div class="attention-title">⚠️ 需要你关注的事项（1项）</div>
+          <div class="attention-body">
+            <b>某白牌店铺A更换主图</b> — 该竞品将主图从白底升级为浅蓝底+卖点标注风格，与你的科技感风格形成直接竞争。建议观察3天数据，如你的点击率下降超过0.5个百分点，考虑在主图中增加更多差异化元素（如真人佩戴对比图或检测报告水印）。
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="summary-card">
+          <div class="summary-title">📋 本周总结</div>
+          <div class="summary-body">
+            <p>本周竞品动作频繁，主要集中在价格调整和视觉升级。Agent自动执行的3个动作整体效果积极：</p>
+            <p>• 跟价策略有效，转化率提升18%，毛利仅下降¥1/件</p>
+            <p>• 详情页自动补充检测报告对点击率有正向贡献</p>
+            <p>• 需持续关注白牌店铺A的主图升级对你点击率的影响</p>
+            <br>
+            <p><b>下周预测</b>：防晒品类即将进入爆发期（5月），预计竞品会加大投流和降价力度。建议提前设置更灵活的跟价规则区间。</p>
+          </div>
+        </div>
+
+        <div class="cta-row">
+          <button class="cta-primary">📥 导出周报PDF</button>
+          <button class="cta-secondary">调整追踪规则</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function goStep(step){
+  if(step>=1){document.getElementById('msg-1-agent').className='msg agent';}
+  var qa=document.getElementById('quickActions');
+  if(step===0)qa.innerHTML='<button class="quick-btn" onclick="goStep(1)">📊 查看本周追踪周报</button>';
+  else qa.innerHTML='';
+  document.getElementById('panel-0').className=step===0?'':'hidden';
+  document.getElementById('panel-1').className=step===1?'':'hidden';
+  setTimeout(function(){document.getElementById('chatMessages').scrollTop=99999},50);
+}
+</script>
+</body>
+</html>

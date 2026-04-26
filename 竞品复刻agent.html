@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>竞品复刻→测品Agent Demo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Noto Sans SC',-apple-system,sans-serif;background:#f5f5f7;overflow:hidden}
+  .app{display:flex;height:100vh}
+  .sidebar{width:220px;background:#fff;border-right:1px solid #ebebef;display:flex;flex-direction:column;flex-shrink:0}
+  .sidebar-header{padding:18px 16px 12px;border-bottom:1px solid #f0f0f3;font-size:13px;color:#6b7280;display:flex;align-items:center;gap:8px}
+  .sidebar-new-btn{display:flex;align-items:center;gap:6px;padding:8px 10px;color:#6b7280;font-size:13px;margin:12px}
+  .sidebar-section{padding:4px 12px}
+  .sidebar-label{font-size:11px;color:#9ca3af;padding:4px 10px;margin-bottom:4px}
+  .sidebar-item{padding:8px 10px;font-size:13px;color:#6b7280;border-radius:8px;margin-bottom:2px}
+  .sidebar-item.active{background:#f3f0ff;color:#8b5cf6;font-weight:500}
+  .sidebar-footer{margin-top:auto;padding:12px 16px;border-top:1px solid #f0f0f3;display:flex;align-items:center;gap:8px}
+  .sidebar-avatar{width:28px;height:28px;border-radius:14px;background:#8b5cf6;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600}
+  .sidebar-name{font-size:12px;font-weight:500}
+  .sidebar-sub{font-size:10px;color:#9ca3af}
+  .chat{flex:1;display:flex;flex-direction:column;min-width:0}
+  .chat-header{padding:14px 24px;border-bottom:1px solid #ebebef;background:#fff;display:flex;align-items:center;justify-content:space-between}
+  .chat-header-left{display:flex;align-items:center;gap:10px}
+  .agent-avatar{width:32px;height:32px;border-radius:16px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .agent-avatar-sm{width:28px;height:28px;border-radius:14px}
+  .chat-title{font-size:14px;font-weight:600}
+  .chat-status{font-size:11px;color:#10b981}
+  .chat-time{font-size:12px;color:#9ca3af}
+  .chat-messages{flex:1;overflow-y:auto;padding:20px 24px}
+  .msg{display:flex;gap:10px;margin-bottom:16px}
+  .msg.user{justify-content:flex-end}
+  .msg-bubble{max-width:80%;padding:12px 16px;font-size:13.5px;line-height:1.7;white-space:pre-line;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .msg.agent .msg-bubble{background:#fff;color:#1a1a2e;border:1px solid #ebebef;border-radius:16px 16px 16px 4px}
+  .msg.user .msg-bubble{background:#8b5cf6;color:#fff;border-radius:16px 16px 4px 16px}
+  .time-divider{text-align:center;margin:20px 0;position:relative}
+  .time-divider span{background:#f5f5f7;padding:0 12px;font-size:11px;color:#9ca3af;position:relative;z-index:1}
+  .time-divider::before{content:'';position:absolute;left:0;right:0;top:50%;border-top:1px solid #e8e8ec}
+  .quick-actions{padding:12px 24px 6px;display:flex;gap:8px;flex-wrap:wrap}
+  .quick-btn{padding:8px 16px;border-radius:20px;border:1px solid #8b5cf6;background:#f5f3ff;color:#8b5cf6;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
+  .quick-btn:hover{background:#ede9fe}
+  .chat-input{padding:10px 24px 18px}
+  .input-box{border:1px solid #e0e0e6;border-radius:14px;padding:12px 16px;background:#fff;display:flex;align-items:center;gap:10px}
+  .input-placeholder{flex:1;color:#bbb;font-size:14px}
+  .input-send{width:32px;height:32px;border-radius:16px;background:#8b5cf6;display:flex;align-items:center;justify-content:center;opacity:.4}
+  .toolbar{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .toolbar-item{padding:6px 12px;border-radius:8px;border:1px solid #ebebef;font-size:12px;color:#6b7280;background:#fff}
+  .panel{width:520px;background:#fff;border-left:1px solid #ebebef;overflow-y:auto;flex-shrink:0}
+  .panel-actions{display:flex;justify-content:flex-end;padding:10px 16px 0;gap:10px}
+  .panel-actions span{font-size:12px;color:#9ca3af;cursor:pointer}
+  .panel-header{padding:20px 28px 16px;border-bottom:1px solid #f0f0f3}
+  .panel-title{font-size:17px;font-weight:600;color:#1a1a2e}
+  .panel-desc{font-size:13px;color:#9ca3af;margin-top:6px}
+  .panel-body{padding:16px 28px 28px}
+
+  .comp-breakdown{border:1px solid #e8e8ec;border-radius:12px;padding:16px;margin-bottom:14px}
+  .comp-breakdown-title{font-size:13px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  .comp-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .comp-info-cell{background:#f8f8fb;border-radius:8px;padding:8px 10px}
+  .comp-info-label{font-size:10px;color:#9ca3af}
+  .comp-info-val{font-size:13px;font-weight:500;color:#1a1a2e;margin-top:2px}
+
+  .img-section{border:1px solid #e8e8ec;border-radius:12px;padding:14px;margin-bottom:14px}
+  .img-section-title{font-size:13px;font-weight:600;margin-bottom:10px}
+  .img-grid{display:grid;gap:8px}
+  .img-grid-2{grid-template-columns:1fr 1fr}
+  .img-grid-4{grid-template-columns:1fr 1fr 1fr 1fr}
+  .product-img{border-radius:8px;overflow:hidden;position:relative;border:1px solid #f0f0f3}
+  .product-img svg{width:100%;display:block}
+  .img-tag{position:absolute;bottom:6px;left:6px;background:rgba(0,0,0,.55);color:#fff;font-size:9px;padding:2px 6px;border-radius:4px}
+
+  .variant-card{border:1px solid #e8e8ec;border-radius:12px;padding:14px;margin-bottom:12px;position:relative}
+  .variant-card.winner{border:2px solid #8b5cf6;background:#faf8ff}
+  .variant-badge{position:absolute;top:-1px;right:16px;font-size:11px;font-weight:500;padding:2px 10px;border-radius:0 0 6px 6px;color:#fff}
+  .badge-a{background:#8b5cf6}.badge-b{background:#f59e0b}.badge-c{background:#10b981}.badge-d{background:#3b82f6}
+  .variant-label{font-size:13px;font-weight:600;margin-bottom:8px}
+  .variant-imgs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px}
+  .variant-img{border-radius:6px;overflow:hidden;border:1px solid #f0f0f3}
+  .variant-img svg{width:100%;display:block}
+  .variant-title{font-size:12px;color:#374151;background:#f8f8fb;padding:6px 10px;border-radius:6px;line-height:1.5;margin-bottom:6px}
+  .variant-title b{color:#8b5cf6}
+
+  .result-summary{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+  .result-stat{background:#f8f8fb;border-radius:10px;padding:12px;text-align:center}
+  .result-stat-num{font-size:20px;font-weight:700;color:#8b5cf6}
+  .result-stat-unit{font-size:11px;color:#9ca3af}
+  .result-stat-label{font-size:10px;color:#9ca3af;margin-top:2px}
+  .result-table{border:1px solid #e8e8ec;border-radius:12px;overflow:hidden;margin-bottom:16px}
+  .result-thead{display:grid;grid-template-columns:70px 1fr 1fr 1fr 1fr 80px;background:#f8f8fb;padding:10px 14px;gap:4px}
+  .result-th{font-size:10px;font-weight:600;color:#9ca3af;text-align:center}
+  .result-row{display:grid;grid-template-columns:70px 1fr 1fr 1fr 1fr 80px;padding:12px 14px;gap:4px;border-top:1px solid #f3f3f6;align-items:center}
+  .result-row.best{background:#faf8ff}
+  .result-cell{font-size:12px;text-align:center;color:#374151}
+  .result-cell.name{font-weight:500;text-align:left}
+  .result-cell.highlight{color:#8b5cf6;font-weight:700}
+  .result-cell.dim{color:#9ca3af}
+  .rank-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600}
+  .rank-1{background:#f3e8ff;color:#8b5cf6}.rank-2{background:#f8f8fb;color:#6b7280}.rank-3{background:#f8f8fb;color:#9ca3af}.rank-4{background:#f8f8fb;color:#9ca3af}
+
+  .winner-card{border:2px solid #8b5cf6;border-radius:12px;padding:18px;background:#faf8ff;margin-bottom:16px}
+  .winner-title{font-size:14px;font-weight:600;color:#8b5cf6;margin-bottom:8px}
+  .winner-body{font-size:13px;color:#374151;line-height:1.8}
+  .winner-body p{margin-bottom:4px}
+  .eliminated-card{border:1px solid #e8e8ec;border-radius:12px;padding:16px;margin-bottom:16px;background:#fafafa}
+  .eliminated-title{font-size:13px;font-weight:600;color:#6b7280;margin-bottom:6px}
+  .eliminated-list{font-size:12px;color:#9ca3af;line-height:1.6}
+  .cta-row{display:flex;gap:10px}
+  .cta-primary{flex:1;padding:12px 0;border-radius:10px;border:none;background:#8b5cf6;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+  .cta-secondary{padding:12px 20px;border-radius:10px;border:1px solid #e8e8ec;background:#fff;color:#6b7280;font-size:14px;cursor:pointer;font-family:inherit}
+  .cta-ghost{padding:12px 20px;border-radius:10px;border:1px solid #8b5cf6;background:#fff;color:#8b5cf6;font-size:14px;cursor:pointer;font-family:inherit}
+
+  .bar-chart{margin:12px 0}
+  .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .bar-label{width:50px;font-size:11px;color:#6b7280;text-align:right}
+  .bar-bg{flex:1;height:20px;background:#f1f1f4;border-radius:4px;overflow:hidden}
+  .bar-fg{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:10px;color:#fff;font-weight:600}
+
+  .insight-box{margin-top:8px;padding:8px 12px;border-radius:8px;font-size:12px;line-height:1.6}
+  .insight-purple{background:#f3e8ff;color:#7c3aed}
+  .vtab.active{background:#fff;color:#8b5cf6!important;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-header"><span>≡</span> 收起历史对话</div>
+    <div class="sidebar-new-btn">✏️ 新对话</div>
+    <div class="sidebar-section"><div class="sidebar-label">今天</div><div class="sidebar-item active">💬 防晒冰袖 · 复刻测品</div><div class="sidebar-item">💬 测品任务看板</div></div>
+    <div class="sidebar-section"><div class="sidebar-label">昨天</div><div class="sidebar-item">💬 手机壳 · 测品结果</div></div>
+    <div class="sidebar-footer"><div class="sidebar-avatar">C</div><div><div class="sidebar-name">Cristal的店铺</div><div class="sidebar-sub">测品Agent · 专业版</div></div></div>
+  </div>
+
+  <div class="chat">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="agent-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+        <div><div class="chat-title">竞品复刻→测品Agent</div><div class="chat-status">● 运行中 · 3个品正在测品中</div></div>
+      </div>
+      <div class="chat-time">今天 09:15</div>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg agent"><div class="agent-avatar agent-avatar-sm"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="msg-bubble">收到选品Agent推送的「防晒冰袖」，我已找到该品类 TOP3 竞品链接：
+
+1. 蕉下冰袖 · 月销10万+ · ¥39.9
+2. 某白牌店铺A · 月销15万+ · ¥12.9
+3. ohsunny冰袖 · 月销8万+ · ¥35.9
+
+你想复刻哪个？建议选择第2个（白牌高销量款），复刻后用品质感素材切入¥19.9价格带。</div></div>
+      <div class="msg user"><div class="msg-bubble">复刻第2个</div></div>
+      <div class="msg agent"><div class="agent-avatar agent-avatar-sm"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="msg-bubble">好的，正在拆解竞品素材结构...
+
+✅ 拆解完成！我已生成一套完整的复刻素材：
+📸 3:4主图 × 1 + 1:1主图 × 1
+🖼️ SKU规格图 × 4（4个颜色）
+📋 详情页 × 1
+📝 标题 × 1
+
+所有素材已按抖店规范生成，可直接上架。
+
+👉 右侧面板查看生成结果，确认后我将自动裂变4个变体版本。</div></div>
+      <div class="msg agent hidden" id="msg-1-agent"><div class="agent-avatar agent-avatar-sm"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="msg-bubble">AI裂变完成！基于复刻版素材，我已生成 4 个视觉变体：
+
+🅰️ 变体A — 简约白底风格
+🅱️ 变体B — 户外场景风格
+🅲️ 变体C — 科技感风格
+🅳️ 变体D — 色彩矩阵风格
+
+每个变体包含独立的主图、详情页和标题。
+
+👉 右侧查看全部变体，确认后一键上架开始测品。</div></div>
+      <div class="msg user hidden" id="msg-1-user"><div class="msg-bubble">都不错，全部上架开始测品</div></div>
+      <div class="msg agent hidden" id="msg-1-confirm"><div class="agent-avatar agent-avatar-sm"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="msg-bubble">✅ 4个变体链接已全部上架！
+
+测品计划：
+⏱️ 测试周期：3天（4月25日-27日）
+📊 判定标准：点击率40% + 转化率40% + GPM 20%
+🔄 数据回收：每日自动采集，3天后推送结果
+
+我会在4月28日早上自动推送测品结果报告。</div></div>
+      <div class="hidden" id="msg-2-divider"><div class="time-divider"><span>—— 3天后 · 4月28日 08:00 ——</span></div></div>
+      <div class="msg agent hidden" id="msg-2-agent"><div class="agent-avatar agent-avatar-sm"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="msg-bubble">📊 测品结果出炉！防晒冰袖4个变体已跑完3天数据。
+
+🏆 变体C（科技感风格）表现最优！
+• 点击率 6.8% — 最高
+• 转化率 4.2% — 最高
+• GPM 128 — 远超品类均值
+
+建议保留变体C，淘汰其余3个。科技感主图+UPF50+标题组合效果最好。
+
+👉 右侧查看完整数据对比。</div></div>
+    </div>
+    <div class="quick-actions" id="quickActions"><button class="quick-btn" onclick="goStep(1)">✅ 素材确认，开始裂变测品</button></div>
+    <div class="chat-input">
+      <div class="input-box"><span class="input-placeholder">输入您想问的问题</span><span style="color:#d0d0d6;font-size:18px;">📎</span><div class="input-send"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg></div></div>
+      <div class="toolbar"><div class="toolbar-item">🎬 短视频创作</div><div class="toolbar-item">🖼️ 智能图片</div><div class="toolbar-item">📊 数据分析</div><div class="toolbar-item">🔍 智能选品</div><div class="toolbar-item">📈 经营诊断</div></div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="panel">
+    <div class="panel-actions"><span>↓ 保存报告</span><span>×</span></div>
+
+    <!-- ===== Panel 0: Replication ===== -->
+    <div id="panel-0">
+      <div class="panel-header"><div class="panel-title">🔧 竞品复刻 · 素材生成结果</div><div class="panel-desc">基于「某白牌店铺A · 防晒冰袖」拆解生成 · 可直接上架</div></div>
+      <div class="panel-body">
+        <div class="comp-breakdown">
+          <div class="comp-breakdown-title">📋 竞品拆解信息</div>
+          <div class="comp-info-grid">
+            <div class="comp-info-cell"><div class="comp-info-label">竞品店铺</div><div class="comp-info-val">某白牌店铺A</div></div>
+            <div class="comp-info-cell"><div class="comp-info-label">竞品价格</div><div class="comp-info-val">¥12.9</div></div>
+            <div class="comp-info-cell"><div class="comp-info-label">月销量</div><div class="comp-info-val">15万+</div></div>
+            <div class="comp-info-cell"><div class="comp-info-label">评分</div><div class="comp-info-val">⭐ 4.3（差评率偏高）</div></div>
+            <div class="comp-info-cell"><div class="comp-info-label">竞品主要卖点</div><div class="comp-info-val">低价、冰感、多色</div></div>
+            <div class="comp-info-cell"><div class="comp-info-label">竞品主要短板</div><div class="comp-info-val">图片粗糙、无认证、易滑落</div></div>
+          </div>
+        </div>
+
+        <!-- Title -->
+        <div class="img-section">
+          <div class="img-section-title">📝 生成标题</div>
+          <div style="font-size:13px;color:#374151;background:#f8f8fb;padding:10px 12px;border-radius:8px;line-height:1.6">
+            <b style="color:#8b5cf6">防晒冰袖</b>女夏季<b style="color:#8b5cf6">UPF50+</b>冰感面料防紫外线<b style="color:#8b5cf6">防滑设计</b>骑行开车弹力宽口薄款手臂套
+          </div>
+          <div style="font-size:11px;color:#9ca3af;margin-top:6px">✅ 已植入3个核心卖点（紫色标注）· 符合抖店标题规范</div>
+        </div>
+
+        <!-- Main Images -->
+        <div class="img-section">
+          <div class="img-section-title">📸 生成主图</div>
+          <div class="img-grid img-grid-2">
+            <!-- 3:4 Main Image -->
+            <div class="product-img">
+              <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="bg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0f4ff"/><stop offset="100%" stop-color="#e8eeff"/></linearGradient>
+                  <linearGradient id="sleeve1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#a5b4fc"/><stop offset="100%" stop-color="#818cf8"/></linearGradient>
+                </defs>
+                <rect width="300" height="400" fill="url(#bg1)"/>
+                <!-- Arm sleeve shape -->
+                <ellipse cx="150" cy="110" rx="55" ry="30" fill="url(#sleeve1)" opacity="0.9"/>
+                <rect x="95" y="110" width="110" height="180" rx="6" fill="url(#sleeve1)" opacity="0.9"/>
+                <ellipse cx="150" cy="290" rx="55" ry="25" fill="#7c3aed" opacity="0.7"/>
+                <!-- Texture lines -->
+                <line x1="110" y1="140" x2="110" y2="270" stroke="#6366f1" stroke-width="0.5" opacity="0.3"/>
+                <line x1="130" y1="130" x2="130" y2="280" stroke="#6366f1" stroke-width="0.5" opacity="0.3"/>
+                <line x1="150" y1="125" x2="150" y2="285" stroke="#6366f1" stroke-width="0.5" opacity="0.3"/>
+                <line x1="170" y1="130" x2="170" y2="280" stroke="#6366f1" stroke-width="0.5" opacity="0.3"/>
+                <line x1="190" y1="140" x2="190" y2="270" stroke="#6366f1" stroke-width="0.5" opacity="0.3"/>
+                <!-- Anti-slip band -->
+                <rect x="95" y="270" width="110" height="12" rx="3" fill="#6d28d9" opacity="0.6"/>
+                <text x="150" y="279" text-anchor="middle" font-size="7" fill="white" font-weight="600">硅胶防滑条</text>
+                <!-- UPF badge -->
+                <rect x="190" y="30" width="80" height="32" rx="6" fill="#7c3aed"/>
+                <text x="230" y="42" text-anchor="middle" font-size="9" fill="white" font-weight="700">UPF50+</text>
+                <text x="230" y="54" text-anchor="middle" font-size="7" fill="#e9d5ff">权威认证</text>
+                <!-- Price -->
+                <text x="30" y="370" font-size="24" fill="#dc2626" font-weight="700">¥19.9</text>
+                <text x="30" y="388" font-size="10" fill="#9ca3af">冰感面料 · 4色可选</text>
+              </svg>
+              <div class="img-tag">3:4 主图 · 800×1066</div>
+            </div>
+            <!-- 1:1 Main Image -->
+            <div class="product-img">
+              <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#faf5ff"/><stop offset="100%" stop-color="#f3e8ff"/></linearGradient>
+                  <linearGradient id="sleeve2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c4b5fd"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>
+                </defs>
+                <rect width="300" height="300" fill="url(#bg2)"/>
+                <!-- Two sleeves side by side -->
+                <ellipse cx="110" cy="75" rx="38" ry="20" fill="url(#sleeve2)"/>
+                <rect x="72" y="75" width="76" height="140" rx="5" fill="url(#sleeve2)"/>
+                <ellipse cx="110" cy="215" rx="38" ry="18" fill="#8b5cf6" opacity="0.7"/>
+                <ellipse cx="200" cy="85" rx="38" ry="20" fill="#93c5fd"/>
+                <rect x="162" y="85" width="76" height="130" rx="5" fill="#93c5fd"/>
+                <ellipse cx="200" cy="215" rx="38" ry="18" fill="#60a5fa" opacity="0.7"/>
+                <!-- Labels -->
+                <rect x="15" y="15" width="90" height="24" rx="12" fill="#7c3aed"/>
+                <text x="60" y="31" text-anchor="middle" font-size="10" fill="white" font-weight="600">冰感面料</text>
+                <text x="150" y="268" text-anchor="middle" font-size="11" fill="#6b7280">防紫外线 · 弹力宽口 · 防滑</text>
+                <text x="150" y="288" text-anchor="middle" font-size="18" fill="#dc2626" font-weight="700">¥19.9</text>
+              </svg>
+              <div class="img-tag">1:1 主图 · 800×800</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SKU Images -->
+        <div class="img-section">
+          <div class="img-section-title">🎨 SKU规格图 × 4</div>
+          <div class="img-grid img-grid-4">
+            <div class="product-img"><svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg"><rect width="150" height="150" fill="#f0f4ff"/><ellipse cx="75" cy="45" rx="30" ry="15" fill="#a5b4fc"/><rect x="45" y="45" width="60" height="70" rx="4" fill="#a5b4fc"/><ellipse cx="75" cy="115" rx="30" ry="12" fill="#818cf8"/><text x="75" y="142" text-anchor="middle" font-size="10" fill="#374151" font-weight="500">浅蓝色</text></svg></div>
+            <div class="product-img"><svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg"><rect width="150" height="150" fill="#fdf2f8"/><ellipse cx="75" cy="45" rx="30" ry="15" fill="#f9a8d4"/><rect x="45" y="45" width="60" height="70" rx="4" fill="#f9a8d4"/><ellipse cx="75" cy="115" rx="30" ry="12" fill="#ec4899" opacity="0.6"/><text x="75" y="142" text-anchor="middle" font-size="10" fill="#374151" font-weight="500">浅粉色</text></svg></div>
+            <div class="product-img"><svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg"><rect width="150" height="150" fill="#ecfdf5"/><ellipse cx="75" cy="45" rx="30" ry="15" fill="#86efac"/><rect x="45" y="45" width="60" height="70" rx="4" fill="#86efac"/><ellipse cx="75" cy="115" rx="30" ry="12" fill="#22c55e" opacity="0.5"/><text x="75" y="142" text-anchor="middle" font-size="10" fill="#374151" font-weight="500">薄荷绿</text></svg></div>
+            <div class="product-img"><svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg"><rect width="150" height="150" fill="#fefce8"/><ellipse cx="75" cy="45" rx="30" ry="15" fill="#fde68a"/><rect x="45" y="45" width="60" height="70" rx="4" fill="#fde68a"/><ellipse cx="75" cy="115" rx="30" ry="12" fill="#eab308" opacity="0.4"/><text x="75" y="142" text-anchor="middle" font-size="10" fill="#374151" font-weight="500">奶白色</text></svg></div>
+          </div>
+        </div>
+
+        <!-- Detail Page Preview -->
+        <div class="img-section">
+          <div class="img-section-title">📋 详情页预览</div>
+          <div class="product-img">
+            <svg viewBox="0 0 460 200" xmlns="http://www.w3.org/2000/svg">
+              <rect width="460" height="200" fill="#fafafe"/>
+              <!-- Section 1: Hero -->
+              <rect x="10" y="10" width="140" height="180" rx="8" fill="#f0f4ff"/>
+              <ellipse cx="80" cy="65" rx="28" ry="14" fill="#a5b4fc"/><rect x="52" y="65" width="56" height="65" rx="4" fill="#a5b4fc"/><ellipse cx="80" cy="130" rx="28" ry="11" fill="#818cf8"/>
+              <text x="80" y="160" text-anchor="middle" font-size="8" fill="#6b7280">产品展示</text>
+              <!-- Section 2: Features -->
+              <rect x="160" y="10" width="140" height="180" rx="8" fill="#f5f3ff"/>
+              <rect x="175" y="25" width="110" height="22" rx="4" fill="#8b5cf6"/><text x="230" y="40" text-anchor="middle" font-size="9" fill="white" font-weight="600">三大核心卖点</text>
+              <rect x="175" y="55" width="110" height="18" rx="3" fill="#ede9fe"/><text x="230" y="67" text-anchor="middle" font-size="8" fill="#7c3aed">✓ UPF50+ 权威认证</text>
+              <rect x="175" y="78" width="110" height="18" rx="3" fill="#ede9fe"/><text x="230" y="90" text-anchor="middle" font-size="8" fill="#7c3aed">✓ 硅胶防滑条设计</text>
+              <rect x="175" y="101" width="110" height="18" rx="3" fill="#ede9fe"/><text x="230" y="113" text-anchor="middle" font-size="8" fill="#7c3aed">✓ 弹力宽口不勒手</text>
+              <rect x="175" y="130" width="50" height="50" rx="4" fill="#e8e8ec"/><text x="200" y="159" text-anchor="middle" font-size="7" fill="#9ca3af">检测报告</text>
+              <rect x="232" y="130" width="50" height="50" rx="4" fill="#e8e8ec"/><text x="257" y="159" text-anchor="middle" font-size="7" fill="#9ca3af">尺码表</text>
+              <!-- Section 3: Details -->
+              <rect x="310" y="10" width="140" height="180" rx="8" fill="#fef7ff"/>
+              <text x="380" y="35" text-anchor="middle" font-size="9" fill="#374151" font-weight="600">面料工艺展示</text>
+              <rect x="325" y="45" width="110" height="55" rx="4" fill="#f3e8ff"/>
+              <text x="380" y="72" text-anchor="middle" font-size="8" fill="#7c3aed">冰感纤维微观结构</text>
+              <text x="380" y="84" text-anchor="middle" font-size="7" fill="#9ca3af">降温3-5°C · 持久凉感</text>
+              <rect x="325" y="108" width="110" height="55" rx="4" fill="#f0f4ff"/>
+              <text x="380" y="135" text-anchor="middle" font-size="8" fill="#6366f1">防紫外线对比测试</text>
+              <text x="380" y="147" text-anchor="middle" font-size="7" fill="#9ca3af">紫外线阻隔率 &gt;99%</text>
+              <text x="380" y="178" text-anchor="middle" font-size="7" fill="#9ca3af">共5屏详情页</text>
+            </svg>
+            <div class="img-tag">详情页 · 750×多帧 · 符合抖店规范</div>
+          </div>
+        </div>
+
+        <div class="insight-box insight-purple">💡 复刻策略：保留竞品畅销颜色和尺码结构，替换所有视觉素材为高品质版本，标题植入差评挖掘的核心卖点。定价¥19.9。</div>
+      </div>
+    </div>
+
+    <!-- ===== Panel 1: Variants ===== -->
+    <div id="panel-1" class="hidden">
+      <div class="panel-header"><div class="panel-title">🔀 AI裂变 · 4个变体版本</div><div class="panel-desc">每个变体包含完整素材包（主图+SKU图+详情页+标题）· 点击切换查看</div></div>
+      <div class="panel-body">
+        <!-- Variant Tabs -->
+        <div style="display:flex;gap:0;background:#f3f4f6;border-radius:10px;padding:3px;margin-bottom:16px">
+          <div class="vtab active" id="vtab-a" onclick="switchVariant('a')" style="flex:1;padding:8px 0;text-align:center;font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;transition:all .2s;color:#6b7280">🅰️ 白底简约</div>
+          <div class="vtab" id="vtab-b" onclick="switchVariant('b')" style="flex:1;padding:8px 0;text-align:center;font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;transition:all .2s;color:#6b7280">🅱️ 户外场景</div>
+          <div class="vtab" id="vtab-c" onclick="switchVariant('c')" style="flex:1;padding:8px 0;text-align:center;font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;transition:all .2s;color:#6b7280">🅲️ 科技感</div>
+          <div class="vtab" id="vtab-d" onclick="switchVariant('d')" style="flex:1;padding:8px 0;text-align:center;font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;transition:all .2s;color:#6b7280">🅳️ 色彩矩阵</div>
+        </div>
+
+        <!-- Variant A -->
+        <div id="var-a">
+          <div style="padding:8px 12px;background:#f5f3ff;border-radius:8px;margin-bottom:12px;font-size:12px;color:#7c3aed">💡 <b>策略</b>：极简白底突出产品本身，适合搜索流量转化。让产品成为画面唯一焦点。</div>
+          <div class="img-section"><div class="img-section-title">📝 标题</div><div style="font-size:13px;color:#374151;background:#f8f8fb;padding:8px 10px;border-radius:6px;line-height:1.5">防晒冰袖女夏季<b style="color:#8b5cf6">UPF50+</b>冰感面料防紫外线<b style="color:#8b5cf6">弹力宽口</b>薄款手臂套</div></div>
+          <div class="img-section"><div class="img-section-title">📸 主图</div><div class="img-grid img-grid-2">
+            <div class="product-img"><svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="400" fill="#fff"/><ellipse cx="150" cy="115" rx="50" ry="25" fill="#a5b4fc"/><rect x="100" y="115" width="100" height="170" rx="5" fill="#a5b4fc"/><ellipse cx="150" cy="285" rx="50" ry="22" fill="#818cf8"/><line x1="120" y1="140" x2="120" y2="270" stroke="#8b8bf8" stroke-width=".5" opacity=".3"/><line x1="150" y1="130" x2="150" y2="280" stroke="#8b8bf8" stroke-width=".5" opacity=".3"/><line x1="180" y1="140" x2="180" y2="270" stroke="#8b8bf8" stroke-width=".5" opacity=".3"/><text x="150" y="360" text-anchor="middle" font-size="22" fill="#dc2626" font-weight="700">¥19.9</text><text x="150" y="385" text-anchor="middle" font-size="11" fill="#9ca3af">冰感面料 · 4色可选</text></svg><div class="img-tag">3:4 主图</div></div>
+            <div class="product-img"><svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="300" fill="#fff"/><ellipse cx="110" cy="80" rx="35" ry="18" fill="#a5b4fc"/><rect x="75" y="80" width="70" height="130" rx="4" fill="#a5b4fc"/><ellipse cx="110" cy="210" rx="35" ry="15" fill="#818cf8"/><ellipse cx="200" cy="85" rx="35" ry="18" fill="#93c5fd"/><rect x="165" y="85" width="70" height="125" rx="4" fill="#93c5fd"/><ellipse cx="200" cy="210" rx="35" ry="15" fill="#60a5fa"/><text x="150" y="258" text-anchor="middle" font-size="11" fill="#6b7280">弹力宽口 · 不勒手</text><text x="150" y="282" text-anchor="middle" font-size="16" fill="#dc2626" font-weight="700">¥19.9</text></svg><div class="img-tag">1:1 主图</div></div>
+          </div></div>
+          <div class="img-section"><div class="img-section-title">🎨 SKU规格图</div><div class="img-grid img-grid-4">
+            <div class="product-img"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" fill="#fff"/><ellipse cx="60" cy="35" rx="24" ry="12" fill="#a5b4fc"/><rect x="36" y="35" width="48" height="55" rx="3" fill="#a5b4fc"/><ellipse cx="60" cy="90" rx="24" ry="10" fill="#818cf8"/><text x="60" y="112" text-anchor="middle" font-size="9" fill="#374151">浅蓝</text></svg></div>
+            <div class="product-img"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" fill="#fff"/><ellipse cx="60" cy="35" rx="24" ry="12" fill="#f9a8d4"/><rect x="36" y="35" width="48" height="55" rx="3" fill="#f9a8d4"/><ellipse cx="60" cy="90" rx="24" ry="10" fill="#ec4899" opacity=".6"/><text x="60" y="112" text-anchor="middle" font-size="9" fill="#374151">浅粉</text></svg></div>
+            <div class="product-img"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" fill="#fff"/><ellipse cx="60" cy="35" rx="24" ry="12" fill="#86efac"/><rect x="36" y="35" width="48" height="55" rx="3" fill="#86efac"/><ellipse cx="60" cy="90" rx="24" ry="10" fill="#22c55e" opacity=".5"/><text x="60" y="112" text-anchor="middle" font-size="9" fill="#374151">薄荷绿</text></svg></div>
+            <div class="product-img"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" fill="#fff"/><ellipse cx="60" cy="35" rx="24" ry="12" fill="#fde68a"/><rect x="36" y="35" width="48" height="55" rx="3" fill="#fde68a"/><ellipse cx="60" cy="90" rx="24" ry="10" fill="#eab308" opacity=".4"/><text x="60" y="112" text-anchor="middle" font-size="9" fill="#374151">奶白</text></svg></div>
+          </div></div>
+          <div class="img-section"><div class="img-section-title">📋 详情页</div><div class="product-img"><svg viewBox="0 0 460 130" xmlns="http://www.w3.org/2000/svg"><rect width="460" height="130" fill="#fff"/><rect x="8" y="8" width="105" height="114" rx="6" fill="#f8f8fb"/><ellipse cx="60" cy="45" rx="22" ry="10" fill="#a5b4fc"/><rect x="38" y="45" width="44" height="45" rx="3" fill="#a5b4fc"/><text x="60" y="108" text-anchor="middle" font-size="7" fill="#9ca3af">产品正面</text><rect x="120" y="8" width="105" height="114" rx="6" fill="#f8f8fb"/><text x="172" y="32" text-anchor="middle" font-size="8" fill="#374151" font-weight="600">三大卖点</text><rect x="130" y="40" width="85" height="14" rx="3" fill="#f0f0ff"/><text x="172" y="50" text-anchor="middle" font-size="7" fill="#6366f1">UPF50+认证</text><rect x="130" y="58" width="85" height="14" rx="3" fill="#f0f0ff"/><text x="172" y="68" text-anchor="middle" font-size="7" fill="#6366f1">硅胶防滑条</text><rect x="130" y="76" width="85" height="14" rx="3" fill="#f0f0ff"/><text x="172" y="86" text-anchor="middle" font-size="7" fill="#6366f1">弹力宽口设计</text><rect x="232" y="8" width="105" height="114" rx="6" fill="#f8f8fb"/><text x="284" y="32" text-anchor="middle" font-size="8" fill="#374151" font-weight="600">面料工艺</text><rect x="242" y="40" width="85" height="70" rx="3" fill="#f0f4ff"/><text x="284" y="75" text-anchor="middle" font-size="7" fill="#6b7280">面料细节+检测报告</text><rect x="344" y="8" width="105" height="114" rx="6" fill="#f8f8fb"/><text x="396" y="32" text-anchor="middle" font-size="8" fill="#374151" font-weight="600">尺码说明</text><rect x="354" y="40" width="85" height="70" rx="3" fill="#f0f4ff"/><text x="396" y="75" text-anchor="middle" font-size="7" fill="#6b7280">尺码表+模特试穿</text></svg><div class="img-tag">详情页 · 白底简洁排版 · 4屏</div></div></div>
+        </div>
+
+        <!-- Variant B -->
+        <div id="var-b" class="hidden">
+          <div style="padding:8px 12px;background:#fffbeb;border-radius:8px;margin-bottom:12px;font-size:12px;color:#92400e">💡 <b>策略</b>：场景化主图激发使用联想，骑行/开车/跑步三场景覆盖。适合短视频和推荐流量。</div>
+          <div class="img-section"><div class="img-section-title">📝 标题</div><div style="font-size:13px;color:#374151;background:#f8f8fb;padding:8px 10px;border-radius:6px;line-height:1.5"><b style="color:#8b5cf6">骑行开车必备</b>防晒冰袖UPF50+<b style="color:#8b5cf6">防滑不掉</b>冰感透气女夏季手臂套</div></div>
+          <div class="img-section"><div class="img-section-title">📸 主图</div><div class="img-grid img-grid-2">
+            <div class="product-img"><svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="skyB" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#93c5fd"/><stop offset="100%" stop-color="#dbeafe"/></linearGradient></defs><rect width="300" height="400" fill="url(#skyB)"/><circle cx="250" cy="50" r="30" fill="#fbbf24" opacity=".7"/><rect x="0" y="300" width="300" height="100" fill="#86efac" opacity=".4"/><path d="M100,260 Q110,240 130,250 Q140,230 160,245 Q170,225 190,240 Q200,220 220,235" fill="none" stroke="#16a34a" stroke-width="2" opacity=".3"/><rect x="130" y="120" width="50" height="120" rx="4" fill="#a5b4fc"/><ellipse cx="155" cy="120" rx="25" ry="12" fill="#a5b4fc"/><ellipse cx="155" cy="240" rx="25" ry="10" fill="#818cf8"/><rect x="138" y="80" width="34" height="45" rx="17" fill="#fcd6b0"/><circle cx="155" cy="90" r="12" fill="#fcd6b0"/><rect x="30" y="30" width="120" height="28" rx="14" fill="#dc2626"/><text x="90" y="49" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">骑行必备</text><text x="150" y="370" text-anchor="middle" font-size="20" fill="#fff" font-weight="700">¥19.9</text></svg><div class="img-tag">3:4 主图 · 骑行场景</div></div>
+            <div class="product-img"><svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="carB" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fef3c7"/><stop offset="100%" stop-color="#fde68a"/></linearGradient></defs><rect width="300" height="300" fill="url(#carB)"/><rect x="0" y="200" width="300" height="100" fill="#d1d5db" opacity=".3"/><rect x="60" y="180" width="180" height="70" rx="10" fill="#6b7280" opacity=".2"/><rect x="120" y="100" width="50" height="100" rx="4" fill="#a5b4fc"/><ellipse cx="145" cy="100" rx="25" ry="12" fill="#a5b4fc"/><ellipse cx="145" cy="200" rx="25" ry="10" fill="#818cf8"/><rect x="20" y="20" width="130" height="28" rx="14" fill="#d97706"/><text x="85" y="39" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">开车防晒</text><text x="150" y="280" text-anchor="middle" font-size="16" fill="#92400e" font-weight="700">¥19.9</text></svg><div class="img-tag">1:1 主图 · 开车场景</div></div>
+          </div></div>
+          <div class="img-section"><div class="img-section-title">🎨 SKU规格图</div><div class="img-grid img-grid-4">
+            <div class="product-img"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" fill="#eff6ff"/><ellipse cx="60" cy="30" rx="22" ry="10" fill="#a5b4fc"/><rect x="38" y="30" width="44" height="60" rx="3" fill="#a5b4fc"/><ellipse cx="60" cy="90" rx="22" ry="8" fill="#818cf8"/><text x="60" y="112" text-anchor="middle" font-size="9" fill="#374151">浅蓝</text></svg></div>
+            <div class="product-img"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" fill="#fdf2f8"/><ellipse cx="60" cy="30" rx="22" ry="10" fill="#f9a8d4"/><rect x="38" y="30" width="44" height="60" rx="3" fill="#f9a8d4"/><ellipse cx="60" cy="90" rx="22" ry="8" fill="#ec4899" opacity=".6"/><text x="60" y="112" text-anchor="middle" font-size="9" fill="#374151">浅粉</text></svg></div>
+            <div class="product-img"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" fill="#ecfdf5"/><ellipse cx="60" cy="30" rx="22" ry="10" fill="#86efac"/><rect x="38" y="30" width="44" height="60" rx="3" fill="#86efac"/><ellipse cx="60" cy="90" rx="22" ry="8" fill="#22c55e" opacity=".5"/><text x="60" y="112" text-anchor="middle" font-size="9" fill="#374151">薄荷绿</text></svg></div>
+            <div class="product-img"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" fill="#fefce8"/><ellipse cx="60" cy="30" rx="22" ry="10" fill="#fde68a"/><rect x="38" y="30" width="44" height="60" rx="3" fill="#fde68a"/><ellipse cx="60" cy="90" rx="22" ry="8" fill="#eab308" opacity=".4"/><text x="60" y="112" text-anchor="middle" font-size="9" fill="#374151">奶白</text></svg></div>
+          </div></div>
+          <div class="img-section"><div class="img-section-title">📋 详情页</div><div class="product-img"><svg viewBox="0 0 460 130" xmlns="http://www.w3.org/2000/svg"><rect width="460" height="130" fill="#fafafe"/><rect x="8" y="8" width="105" height="114" rx="6" fill="#dbeafe"/><text x="60" y="50" text-anchor="middle" font-size="8" fill="#2563eb" font-weight="600">骑行场景</text><text x="60" y="75" text-anchor="middle" font-size="7" fill="#6b7280">模特户外实拍</text><rect x="120" y="8" width="105" height="114" rx="6" fill="#fef3c7"/><text x="172" y="50" text-anchor="middle" font-size="8" fill="#d97706" font-weight="600">开车场景</text><text x="172" y="75" text-anchor="middle" font-size="7" fill="#6b7280">驾车防晒演示</text><rect x="232" y="8" width="105" height="114" rx="6" fill="#f0fdf4"/><text x="284" y="50" text-anchor="middle" font-size="8" fill="#16a34a" font-weight="600">跑步场景</text><text x="284" y="75" text-anchor="middle" font-size="7" fill="#6b7280">运动防滑展示</text><rect x="344" y="8" width="105" height="114" rx="6" fill="#f8f8fb"/><text x="396" y="50" text-anchor="middle" font-size="8" fill="#374151" font-weight="600">产品细节</text><text x="396" y="75" text-anchor="middle" font-size="7" fill="#6b7280">卖点+尺码表</text></svg><div class="img-tag">详情页 · 场景化排版 · 4屏</div></div></div>
+        </div>
+
+        <!-- Variant C -->
+        <div id="var-c" class="hidden">
+          <div style="padding:8px 12px;background:#f3e8ff;border-radius:8px;margin-bottom:12px;font-size:12px;color:#7c3aed">💡 <b>策略</b>：深色底+数据可视化，强调UPF50+认证和科技面料，建立专业信任感。适合高转化。</div>
+          <div class="img-section"><div class="img-section-title">📝 标题</div><div style="font-size:13px;color:#374151;background:#f8f8fb;padding:8px 10px;border-radius:6px;line-height:1.5"><b style="color:#8b5cf6">UPF50+权威认证</b>防晒冰袖<b style="color:#8b5cf6">冰感纤维科技</b>防紫外线硅胶防滑女夏季</div></div>
+          <div class="img-section"><div class="img-section-title">📸 主图</div><div class="img-grid img-grid-2">
+            <div class="product-img"><svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="techC" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1e1b4b"/><stop offset="100%" stop-color="#312e81"/></linearGradient></defs><rect width="300" height="400" fill="url(#techC)"/><ellipse cx="150" cy="130" rx="50" ry="25" fill="#a78bfa" opacity=".9"/><rect x="100" y="130" width="100" height="150" rx="5" fill="#a78bfa" opacity=".9"/><ellipse cx="150" cy="280" rx="50" ry="22" fill="#8b5cf6"/><rect x="115" y="165" width="50" height="50" rx="3" fill="none" stroke="#c4b5fd" stroke-width=".8" stroke-dasharray="3,3"/><text x="140" y="193" text-anchor="middle" font-size="8" fill="#c4b5fd">纤维微观</text><rect x="100" y="255" width="100" height="16" rx="3" fill="#6d28d9" opacity=".8"/><text x="150" y="266" text-anchor="middle" font-size="8" fill="#e9d5ff">硅胶防滑条</text><rect x="15" y="25" width="110" height="36" rx="8" fill="#7c3aed"/><text x="70" y="42" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">UPF50+</text><text x="70" y="55" text-anchor="middle" font-size="8" fill="#e9d5ff">权威认证</text><rect x="15" y="330" width="130" height="22" rx="4" fill="#4c1d95"/><text x="80" y="345" text-anchor="middle" font-size="9" fill="#c4b5fd">SGS检测 · 紫外线阻隔>99%</text><text x="150" y="385" text-anchor="middle" font-size="22" fill="#fbbf24" font-weight="700">¥19.9</text></svg><div class="img-tag">3:4 主图 · 科技深色底</div></div>
+            <div class="product-img"><svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="300" fill="#0f0a2a"/><circle cx="150" cy="120" r="65" fill="none" stroke="#8b5cf6" stroke-width="1.5" opacity=".4"/><circle cx="150" cy="120" r="45" fill="none" stroke="#a78bfa" stroke-width="1" opacity=".3"/><circle cx="150" cy="120" r="25" fill="#8b5cf6" opacity=".25"/><text x="150" y="116" text-anchor="middle" font-size="14" fill="#e9d5ff" font-weight="600">冰感科技</text><text x="150" y="132" text-anchor="middle" font-size="10" fill="#8b5cf6">-5°C 持久凉感</text><text x="150" y="215" text-anchor="middle" font-size="11" fill="#a78bfa">紫外线阻隔率</text><text x="150" y="240" text-anchor="middle" font-size="24" fill="#fff" font-weight="700">>99%</text><rect x="80" y="260" width="140" height="18" rx="9" fill="#7c3aed"/><text x="150" y="273" text-anchor="middle" font-size="9" fill="#fff">SGS权威检测认证</text></svg><div class="img-tag">1:1 主图 · 数据可视化</div></div>
+          </div></div>
+          <div class="img-section"><div class="img-section-title">🎨 SKU规格图</div><div class="img-grid img-grid-4">
+            <div class="product-img"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" fill="#1e1b4b"/><ellipse cx="60" cy="30" rx="22" ry="10" fill="#a5b4fc"/><rect x="38" y="30" width="44" height="55" rx="3" fill="#a5b4fc"/><ellipse cx="60" cy="85" rx="22" ry="8" fill="#818cf8"/><text x="60" y="108" text-anchor="middle" font-size="9" fill="#c4b5fd">浅蓝</text></svg></div>
+            <div class="product-img"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" fill="#1e1b4b"/><ellipse cx="60" cy="30" rx="22" ry="10" fill="#f9a8d4"/><rect x="38" y="30" width="44" height="55" rx="3" fill="#f9a8d4"/><ellipse cx="60" cy="85" rx="22" ry="8" fill="#ec4899" opacity=".6"/><text x="60" y="108" text-anchor="middle" font-size="9" fill="#f9a8d4">浅粉</text></svg></div>
+            <div class="product-img"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" fill="#1e1b4b"/><ellipse cx="60" cy="30" rx="22" ry="10" fill="#86efac"/><rect x="38" y="30" width="44" height="55" rx="3" fill="#86efac"/><ellipse cx="60" cy="85" rx="22" ry="8" fill="#22c55e" opacity=".5"/><text x="60" y="108" text-anchor="middle" font-size="9" fill="#86efac">薄荷绿</text></svg></div>
+            <div class="product-img"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" fill="#1e1b4b"/><ellipse cx="60" cy="30" rx="22" ry="10" fill="#fde68a"/><rect x="38" y="30" width="44" height="55" rx="3" fill="#fde68a"/><ellipse cx="60" cy="85" rx="22" ry="8" fill="#eab308" opacity=".4"/><text x="60" y="108" text-anchor="middle" font-size="9" fill="#fde68a">奶白</text></svg></div>
+          </div></div>
+          <div class="img-section"><div class="img-section-title">📋 详情页</div><div class="product-img"><svg viewBox="0 0 460 130" xmlns="http://www.w3.org/2000/svg"><rect width="460" height="130" fill="#0f0a2a"/><rect x="8" y="8" width="105" height="114" rx="6" fill="#1e1b4b"/><rect x="18" y="18" width="85" height="20" rx="4" fill="#7c3aed"/><text x="60" y="32" text-anchor="middle" font-size="8" fill="#fff" font-weight="600">UPF50+认证</text><text x="60" y="65" text-anchor="middle" font-size="7" fill="#c4b5fd">检测报告展示</text><text x="60" y="100" text-anchor="middle" font-size="7" fill="#8b5cf6">权威背书</text><rect x="120" y="8" width="105" height="114" rx="6" fill="#1e1b4b"/><text x="172" y="32" text-anchor="middle" font-size="8" fill="#a78bfa" font-weight="600">面料科技</text><text x="172" y="65" text-anchor="middle" font-size="7" fill="#c4b5fd">纤维结构图</text><text x="172" y="100" text-anchor="middle" font-size="7" fill="#8b5cf6">降温数据对比</text><rect x="232" y="8" width="105" height="114" rx="6" fill="#1e1b4b"/><text x="284" y="32" text-anchor="middle" font-size="8" fill="#a78bfa" font-weight="600">防滑工艺</text><text x="284" y="65" text-anchor="middle" font-size="7" fill="#c4b5fd">硅胶层细节</text><text x="284" y="100" text-anchor="middle" font-size="7" fill="#8b5cf6">运动对比测试</text><rect x="344" y="8" width="105" height="114" rx="6" fill="#1e1b4b"/><text x="396" y="32" text-anchor="middle" font-size="8" fill="#a78bfa" font-weight="600">尺码指南</text><text x="396" y="65" text-anchor="middle" font-size="7" fill="#c4b5fd">模特试穿对比</text><text x="396" y="100" text-anchor="middle" font-size="7" fill="#8b5cf6">尺码推荐表</text></svg><div class="img-tag">详情页 · 深色科技风 · 4屏</div></div></div>
+        </div>
+
+        <!-- Variant D -->
+        <div id="var-d" class="hidden">
+          <div style="padding:8px 12px;background:#fef3c7;border-radius:8px;margin-bottom:12px;font-size:12px;color:#92400e">💡 <b>策略</b>：用颜色丰富度做视觉冲击，莫兰迪色系+穿搭展示吸引女性用户。强调"百搭"属性。</div>
+          <div class="img-section"><div class="img-section-title">📝 标题</div><div style="font-size:13px;color:#374151;background:#f8f8fb;padding:8px 10px;border-radius:6px;line-height:1.5">20色可选<b style="color:#8b5cf6">莫兰迪色系</b>防晒冰袖UPF50+冰感面料<b style="color:#8b5cf6">百搭显白</b>女夏季</div></div>
+          <div class="img-section"><div class="img-section-title">📸 主图</div><div class="img-grid img-grid-2">
+            <div class="product-img"><svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="400" fill="#fffbeb"/><text x="150" y="35" text-anchor="middle" font-size="14" fill="#92400e" font-weight="700">20色可选</text><g transform="translate(30,50)"><rect x="0" y="0" width="45" height="80" rx="22" fill="#a5b4fc"/><rect x="55" y="0" width="45" height="80" rx="22" fill="#f9a8d4"/><rect x="110" y="0" width="45" height="80" rx="22" fill="#86efac"/><rect x="165" y="0" width="45" height="80" rx="22" fill="#fde68a"/></g><g transform="translate(30,145)"><rect x="0" y="0" width="45" height="80" rx="22" fill="#c4b5fd"/><rect x="55" y="0" width="45" height="80" rx="22" fill="#fca5a5"/><rect x="110" y="0" width="45" height="80" rx="22" fill="#67e8f9"/><rect x="165" y="0" width="45" height="80" rx="22" fill="#d9f99d"/></g><g transform="translate(30,240)"><rect x="0" y="0" width="45" height="80" rx="22" fill="#e9d5ff"/><rect x="55" y="0" width="45" height="80" rx="22" fill="#fed7aa"/><rect x="110" y="0" width="45" height="80" rx="22" fill="#a7f3d0"/><rect x="165" y="0" width="45" height="80" rx="22" fill="#fecdd3"/></g><text x="150" y="355" text-anchor="middle" font-size="11" fill="#92400e">莫兰迪色系 · 百搭显白</text><text x="150" y="385" text-anchor="middle" font-size="22" fill="#dc2626" font-weight="700">¥19.9</text></svg><div class="img-tag">3:4 主图 · 色彩矩阵</div></div>
+            <div class="product-img"><svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="300" fill="#fefce8"/><ellipse cx="150" cy="95" rx="50" ry="25" fill="#c4b5fd"/><rect x="100" y="95" width="100" height="100" rx="5" fill="#c4b5fd"/><ellipse cx="150" cy="195" rx="50" ry="20" fill="#8b5cf6" opacity=".5"/><text x="150" y="40" text-anchor="middle" font-size="13" fill="#92400e" font-weight="700">莫兰迪色系</text><circle cx="50" cy="255" r="14" fill="#a5b4fc"/><circle cx="90" cy="255" r="14" fill="#f9a8d4"/><circle cx="130" cy="255" r="14" fill="#86efac"/><circle cx="170" cy="255" r="14" fill="#fde68a"/><circle cx="210" cy="255" r="14" fill="#67e8f9"/><circle cx="250" cy="255" r="14" fill="#e9d5ff"/><text x="150" y="288" text-anchor="middle" font-size="10" fill="#92400e">还有14色 ></text></svg><div class="img-tag">1:1 主图 · 色卡展示</div></div>
+          </div></div>
+          <div class="img-section"><div class="img-section-title">🎨 SKU规格图</div><div class="img-grid img-grid-4">
+            <div class="product-img"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" fill="#fefce8"/><ellipse cx="60" cy="30" rx="22" ry="10" fill="#a5b4fc"/><rect x="38" y="30" width="44" height="55" rx="3" fill="#a5b4fc"/><ellipse cx="60" cy="85" rx="22" ry="8" fill="#818cf8"/><text x="60" y="108" text-anchor="middle" font-size="9" fill="#374151">雾蓝</text></svg></div>
+            <div class="product-img"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" fill="#fefce8"/><ellipse cx="60" cy="30" rx="22" ry="10" fill="#f9a8d4"/><rect x="38" y="30" width="44" height="55" rx="3" fill="#f9a8d4"/><ellipse cx="60" cy="85" rx="22" ry="8" fill="#ec4899" opacity=".6"/><text x="60" y="108" text-anchor="middle" font-size="9" fill="#374151">烟粉</text></svg></div>
+            <div class="product-img"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" fill="#fefce8"/><ellipse cx="60" cy="30" rx="22" ry="10" fill="#c4b5fd"/><rect x="38" y="30" width="44" height="55" rx="3" fill="#c4b5fd"/><ellipse cx="60" cy="85" rx="22" ry="8" fill="#8b5cf6" opacity=".5"/><text x="60" y="108" text-anchor="middle" font-size="9" fill="#374151">香芋紫</text></svg></div>
+            <div class="product-img"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="120" fill="#fefce8"/><ellipse cx="60" cy="30" rx="22" ry="10" fill="#86efac"/><rect x="38" y="30" width="44" height="55" rx="3" fill="#86efac"/><ellipse cx="60" cy="85" rx="22" ry="8" fill="#22c55e" opacity=".5"/><text x="60" y="108" text-anchor="middle" font-size="9" fill="#374151">豆沙绿</text></svg></div>
+          </div></div>
+          <div class="img-section"><div class="img-section-title">📋 详情页</div><div class="product-img"><svg viewBox="0 0 460 130" xmlns="http://www.w3.org/2000/svg"><rect width="460" height="130" fill="#fffdf7"/><rect x="8" y="8" width="105" height="114" rx="6" fill="#fef3c7"/><text x="60" y="35" text-anchor="middle" font-size="8" fill="#92400e" font-weight="600">20色展示</text><circle cx="30" cy="60" r="8" fill="#a5b4fc"/><circle cx="50" cy="60" r="8" fill="#f9a8d4"/><circle cx="70" cy="60" r="8" fill="#86efac"/><circle cx="90" cy="60" r="8" fill="#fde68a"/><circle cx="30" cy="82" r="8" fill="#c4b5fd"/><circle cx="50" cy="82" r="8" fill="#fca5a5"/><circle cx="70" cy="82" r="8" fill="#67e8f9"/><circle cx="90" cy="82" r="8" fill="#d9f99d"/><rect x="120" y="8" width="105" height="114" rx="6" fill="#fce7f3"/><text x="172" y="35" text-anchor="middle" font-size="8" fill="#db2777" font-weight="600">穿搭搭配</text><text x="172" y="70" text-anchor="middle" font-size="7" fill="#9ca3af">4套搭配方案</text><rect x="232" y="8" width="105" height="114" rx="6" fill="#f3e8ff"/><text x="284" y="35" text-anchor="middle" font-size="8" fill="#7c3aed" font-weight="600">显白对比</text><text x="284" y="70" text-anchor="middle" font-size="7" fill="#9ca3af">不同肤色上手效果</text><rect x="344" y="8" width="105" height="114" rx="6" fill="#f8f8fb"/><text x="396" y="35" text-anchor="middle" font-size="8" fill="#374151" font-weight="600">产品细节</text><text x="396" y="70" text-anchor="middle" font-size="7" fill="#9ca3af">卖点+尺码表</text></svg><div class="img-tag">详情页 · 色彩主题排版 · 4屏</div></div></div>
+        </div>
+
+        <div class="insight-box insight-purple" style="margin-bottom:16px">🧪 测品逻辑：4个变体仅在视觉风格和标题侧重上不同，价格（¥19.9）、SKU结构、核心卖点保持一致，确保测试变量单一、结果可归因。</div>
+        <div class="cta-row">
+          <button class="cta-primary" onclick="goStep(2)">✅ 确认上架，开始3天测品</button>
+          <button class="cta-secondary">调整变体</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Panel 2: Results ===== -->
+    <div id="panel-2" class="hidden">
+      <div class="panel-header"><div class="panel-title">📊 测品结果报告 · 防晒冰袖</div><div class="panel-desc">测试周期：4月25日-27日 · 4个变体 · 判定：点击率40% + 转化率40% + GPM 20%</div></div>
+      <div class="panel-body">
+        <div class="result-summary">
+          <div class="result-stat"><div class="result-stat-num">4<span class="result-stat-unit"> 个</span></div><div class="result-stat-label">测试变体</div></div>
+          <div class="result-stat"><div class="result-stat-num">3<span class="result-stat-unit"> 天</span></div><div class="result-stat-label">测试周期</div></div>
+          <div class="result-stat"><div class="result-stat-num">12,847</div><div class="result-stat-label">总曝光量</div></div>
+          <div class="result-stat"><div class="result-stat-num">C</div><div class="result-stat-label">最优变体</div></div>
+        </div>
+        <div class="result-table">
+          <div class="result-thead"><div class="result-th">变体</div><div class="result-th">点击率</div><div class="result-th">转化率</div><div class="result-th">GPM</div><div class="result-th">成交额</div><div class="result-th">排名</div></div>
+          <div class="result-row best"><div class="result-cell name">🅲️ 科技感</div><div class="result-cell highlight">6.8%</div><div class="result-cell highlight">4.2%</div><div class="result-cell highlight">128</div><div class="result-cell highlight">¥1,847</div><div class="result-cell"><span class="rank-badge rank-1">🏆 第1</span></div></div>
+          <div class="result-row"><div class="result-cell name">🅱️ 场景</div><div class="result-cell">5.9%</div><div class="result-cell">3.5%</div><div class="result-cell">98</div><div class="result-cell">¥1,245</div><div class="result-cell"><span class="rank-badge rank-2">第2</span></div></div>
+          <div class="result-row"><div class="result-cell name">🅰️ 白底</div><div class="result-cell">5.2%</div><div class="result-cell">3.1%</div><div class="result-cell">82</div><div class="result-cell">¥987</div><div class="result-cell"><span class="rank-badge rank-3">第3</span></div></div>
+          <div class="result-row"><div class="result-cell name">🅳️ 色彩</div><div class="result-cell dim">4.5%</div><div class="result-cell dim">2.8%</div><div class="result-cell dim">71</div><div class="result-cell dim">¥756</div><div class="result-cell"><span class="rank-badge rank-4">第4</span></div></div>
+        </div>
+        <div style="border:1px solid #e8e8ec;border-radius:12px;padding:14px;margin-bottom:16px">
+          <div style="font-size:13px;font-weight:600;margin-bottom:10px">📈 点击率对比</div>
+          <div class="bar-chart">
+            <div class="bar-row"><div class="bar-label">🅲️ 科技</div><div class="bar-bg"><div class="bar-fg" style="width:100%;background:#8b5cf6">6.8%</div></div></div>
+            <div class="bar-row"><div class="bar-label">🅱️ 场景</div><div class="bar-bg"><div class="bar-fg" style="width:87%;background:#a78bfa">5.9%</div></div></div>
+            <div class="bar-row"><div class="bar-label">🅰️ 白底</div><div class="bar-bg"><div class="bar-fg" style="width:76%;background:#c4b5fd">5.2%</div></div></div>
+            <div class="bar-row"><div class="bar-label">🅳️ 色彩</div><div class="bar-bg"><div class="bar-fg" style="width:66%;background:#ddd6fe">4.5%</div></div></div>
+          </div>
+        </div>
+        <div class="winner-card">
+          <div class="winner-title">🏆 最优变体分析 · 变体C（科技感风格）</div>
+          <div class="winner-body">
+            <p><b>为什么C赢了？</b></p>
+            <p>• 点击率最高（6.8%）— 深色底+UPF50+认证标识醒目，信任感强</p>
+            <p>• 转化率最高（4.2%）— 科技面料+检测报告组合有效消除购买疑虑</p>
+            <p>• GPM最高（128）— 高转化带来更高千次播放成交额</p>
+            <br>
+            <p><b>关键洞察：</b></p>
+            <p>在¥19.9价格带，用户不是找最便宜的，而是找"看起来靠谱的"。科技感风格的认证标识和面料说明恰好满足这个心理。</p>
+          </div>
+        </div>
+        <div class="eliminated-card">
+          <div class="eliminated-title">🗑️ 建议淘汰</div>
+          <div class="eliminated-list">
+            • 变体A（白底）— 点击率和转化率均低于平均，白底缺乏差异化<br>
+            • 变体D（色彩）— 表现最差，颜色丰富度非该价格带核心关注<br>
+            • 变体B（场景）— 中等，可保留备选，建议集中资源优化变体C
+          </div>
+        </div>
+        <div style="border:2px solid #f59e0b;border-radius:12px;padding:16px;margin-bottom:16px;background:#fffbeb">
+          <div style="font-size:14px;font-weight:600;color:#d97706;margin-bottom:6px">📢 下一步建议</div>
+          <div style="font-size:13px;color:#92400e;line-height:1.8">
+            <p>变体C数据优秀，GPM 128远超品类均值（60-80），建议开始投广放量。</p>
+            <p>• 保留变体C链接，下架其余3个</p>
+            <p>• 前往千川开始投放测试</p>
+          </div>
+        </div>
+        <div class="cta-row">
+          <button class="cta-primary">✅ 确认：保留C，淘汰其余</button>
+          <button class="cta-ghost">📋 发送至追踪Agent</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchVariant(v){
+  ['a','b','c','d'].forEach(function(x){
+    document.getElementById('var-'+x).className=x===v?'':'hidden';
+    document.getElementById('vtab-'+x).className=x===v?'vtab active':'vtab';
+  });
+}
+function goStep(step){
+  if(step>=1){document.getElementById('msg-1-agent').className='msg agent';document.getElementById('msg-1-user').className='msg user';document.getElementById('msg-1-confirm').className='msg agent';}
+  if(step>=2){document.getElementById('msg-2-divider').className='';document.getElementById('msg-2-agent').className='msg agent';}
+  var qa=document.getElementById('quickActions');
+  if(step===0)qa.innerHTML='<button class="quick-btn" onclick="goStep(1)">✅ 素材确认，开始裂变测品</button>';
+  else qa.innerHTML='';
+  document.getElementById('panel-0').className=step===0?'':'hidden';
+  document.getElementById('panel-1').className=step===1?'':'hidden';
+  document.getElementById('panel-2').className=step===2?'':'hidden';
+  setTimeout(function(){document.getElementById('chatMessages').scrollTop=99999},50);
+}
+</script>
+</body>
+</html>

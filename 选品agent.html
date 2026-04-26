@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>选品Agent Demo v3</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Noto Sans SC',-apple-system,sans-serif;background:#f5f5f7;overflow:hidden}
+  .app{display:flex;height:100vh}
+
+  /* Sidebar */
+  .sidebar{width:220px;background:#fff;border-right:1px solid #ebebef;display:flex;flex-direction:column;flex-shrink:0}
+  .sidebar-header{padding:18px 16px 12px;border-bottom:1px solid #f0f0f3;font-size:13px;color:#6b7280;display:flex;align-items:center;gap:8px}
+  .sidebar-new{padding:12px}
+  .sidebar-new-btn{display:flex;align-items:center;gap:6px;padding:8px 10px;color:#6b7280;font-size:13px}
+  .sidebar-section{padding:4px 12px}
+  .sidebar-label{font-size:11px;color:#9ca3af;padding:4px 10px;margin-bottom:4px}
+  .sidebar-item{padding:8px 10px;font-size:13px;color:#6b7280;border-radius:8px;margin-bottom:2px}
+  .sidebar-item.active{background:#eef2ff;color:#6366f1;font-weight:500}
+  .sidebar-footer{margin-top:auto;padding:12px 16px;border-top:1px solid #f0f0f3;display:flex;align-items:center;gap:8px}
+  .sidebar-avatar{width:28px;height:28px;border-radius:14px;background:#6366f1;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600}
+  .sidebar-name{font-size:12px;font-weight:500}
+  .sidebar-sub{font-size:10px;color:#9ca3af}
+
+  /* Chat */
+  .chat{flex:1;display:flex;flex-direction:column;min-width:0}
+  .chat-header{padding:14px 24px;border-bottom:1px solid #ebebef;background:#fff;display:flex;align-items:center;justify-content:space-between}
+  .chat-header-left{display:flex;align-items:center;gap:10px}
+  .agent-avatar{width:32px;height:32px;border-radius:16px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .agent-avatar-sm{width:28px;height:28px;border-radius:14px}
+  .chat-title{font-size:14px;font-weight:600}
+  .chat-status{font-size:11px;color:#10b981}
+  .chat-time{font-size:12px;color:#9ca3af}
+  .chat-messages{flex:1;overflow-y:auto;padding:20px 24px}
+  .msg{display:flex;gap:10px;margin-bottom:16px}
+  .msg.user{justify-content:flex-end}
+  .msg-bubble{max-width:80%;padding:12px 16px;font-size:13.5px;line-height:1.7;white-space:pre-line;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .msg.agent .msg-bubble{background:#fff;color:#1a1a2e;border:1px solid #ebebef;border-radius:16px 16px 16px 4px}
+  .msg.user .msg-bubble{background:#6366f1;color:#fff;border-radius:16px 16px 4px 16px}
+  .quick-actions{padding:12px 24px 6px;display:flex;gap:8px;flex-wrap:wrap}
+  .quick-btn{padding:8px 16px;border-radius:20px;border:1px solid #6366f1;background:#f0f0ff;color:#6366f1;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
+  .quick-btn:hover{background:#e8e8ff}
+  .chat-input{padding:10px 24px 18px}
+  .input-box{border:1px solid #e0e0e6;border-radius:14px;padding:12px 16px;background:#fff;display:flex;align-items:center;gap:10px}
+  .input-placeholder{flex:1;color:#bbb;font-size:14px}
+  .input-send{width:32px;height:32px;border-radius:16px;background:#6366f1;display:flex;align-items:center;justify-content:center;opacity:.4}
+  .toolbar{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .toolbar-item{padding:6px 12px;border-radius:8px;border:1px solid #ebebef;font-size:12px;color:#6b7280;background:#fff}
+
+  /* Panel */
+  .panel{width:520px;background:#fff;border-left:1px solid #ebebef;overflow-y:auto;flex-shrink:0}
+  .panel-actions{display:flex;justify-content:flex-end;padding:10px 16px 0;gap:10px}
+  .panel-actions span{font-size:12px;color:#9ca3af;cursor:pointer}
+  .panel-header{padding:20px 28px 16px;border-bottom:1px solid #f0f0f3}
+  .panel-title{font-size:17px;font-weight:600;color:#1a1a2e}
+  .panel-desc{font-size:13px;color:#9ca3af;margin-top:6px}
+  .panel-body{padding:16px 28px 28px}
+
+  /* Mode Tabs */
+  .mode-tabs{display:flex;gap:0;margin-bottom:18px;background:#f3f4f6;border-radius:10px;padding:3px}
+  .mode-tab{flex:1;padding:9px 0;text-align:center;font-size:13px;font-weight:500;border-radius:8px;cursor:pointer;transition:all .2s;color:#6b7280;user-select:none}
+  .mode-tab.active{background:#fff;color:#6366f1;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .mode-badge{display:inline-block;font-size:10px;padding:1px 6px;border-radius:6px;margin-left:4px;font-weight:600}
+  .mode-badge-factory{background:#dbeafe;color:#2563eb}
+  .mode-badge-nosource{background:#fce7f3;color:#db2777}
+
+  /* Section */
+  .section-block{margin-bottom:20px}
+  .section-header{margin-bottom:10px}
+  .section-label{font-size:13px;font-weight:600;color:#1a1a2e;display:flex;align-items:center;gap:6px;margin-bottom:3px}
+  .section-label .dot{width:7px;height:7px;border-radius:4px;flex-shrink:0}
+  .dot-red{background:#ef4444}.dot-orange{background:#f59e0b}.dot-blue{background:#3b82f6}.dot-green{background:#10b981}.dot-purple{background:#8b5cf6}
+  .section-logic{font-size:11px;color:#9ca3af;line-height:1.5;margin-bottom:2px}
+  .section-action-tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:6px;font-weight:600;margin-top:4px}
+  .tag-urgent{background:#fef2f2;color:#dc2626}
+  .tag-watch{background:#fffbeb;color:#d97706}
+  .tag-prepare{background:#eff6ff;color:#2563eb}
+
+  /* Product Card */
+  .product-card{border:1px solid #e8e8ec;border-radius:12px;padding:16px;margin-bottom:12px;position:relative}
+  .product-card.top{border:2px solid #6366f1;background:#fafafe}
+  .top-badge{position:absolute;top:-1px;right:16px;background:#6366f1;color:#fff;font-size:11px;font-weight:500;padding:2px 10px;border-radius:0 0 6px 6px}
+  .product-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+  .product-name{font-size:14px;font-weight:600}
+  .product-cat{font-size:11px;color:#9ca3af;margin-left:6px}
+  .product-score{display:flex;align-items:center;gap:6px}
+  .trend-tag{font-size:11px;font-weight:500}
+  .score-box{background:#f0f0ff;border-radius:8px;padding:2px 8px}
+  .score-num{font-size:16px;font-weight:700;color:#6366f1}
+  .score-unit{font-size:10px;color:#9ca3af}
+  .data-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:8px}
+  .data-cell{background:#f8f8fb;border-radius:6px;padding:5px 6px;text-align:center}
+  .data-val{font-size:12px;font-weight:600;color:#1a1a2e}
+  .data-label{font-size:9px;color:#9ca3af}
+  .product-reason{font-size:12px;color:#6b7280;margin-bottom:4px;line-height:1.5}
+  .product-suggest{font-size:12px;color:#6366f1;line-height:1.5;font-weight:500}
+  .product-actions{margin-top:10px;display:flex;gap:8px}
+  .btn-primary{flex:1;padding:7px 0;border-radius:8px;border:none;background:#6366f1;color:#fff;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit}
+  .btn-primary:hover{background:#5558e6}
+  .btn-secondary{flex:1;padding:7px 0;border-radius:8px;border:1px solid #e8e8ec;background:#fff;color:#6b7280;font-size:12px;cursor:pointer;font-family:inherit}
+  .source-tag{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:#9ca3af;background:#f8f8fb;padding:2px 8px;border-radius:6px;margin-right:4px;margin-bottom:4px}
+  .source-tag .src-dot{width:4px;height:4px;border-radius:2px}
+
+  /* Timeline */
+  .timeline-card{border:1px solid #e8e8ec;border-radius:12px;padding:16px;margin-bottom:12px}
+  .timeline-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+  .timeline-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+  .timeline-icon-blue{background:#eff6ff}.timeline-icon-orange{background:#fffbeb}.timeline-icon-red{background:#fef2f2}
+  .timeline-title{font-size:13px;font-weight:600}
+  .timeline-sub{font-size:11px;color:#9ca3af;margin-top:2px}
+  .timeline-sources{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+  .timeline-item{padding:8px 12px;background:#f8f8fb;border-radius:8px;margin-bottom:6px}
+  .timeline-item-name{font-size:13px;font-weight:500}
+  .timeline-item-detail{font-size:11px;color:#6b7280;margin-top:2px;line-height:1.5}
+  .timeline-insight{margin-top:8px;padding:8px 12px;border-radius:8px;font-size:12px;line-height:1.5}
+  .timeline-action{margin-top:8px;padding:10px 12px;border-radius:8px;font-size:12px;line-height:1.6;border:1px dashed}
+  .action-title{font-weight:600;margin-bottom:4px;font-size:12px}
+  .action-red{background:#fef2f2;border-color:#fca5a5;color:#991b1b}
+  .action-orange{background:#fffbeb;border-color:#fcd34d;color:#92400e}
+  .action-blue{background:#eff6ff;border-color:#93c5fd;color:#1e40af}
+
+  /* Analysis */
+  .analysis-card{border:1px solid #e8e8ec;border-radius:12px;padding:18px;margin-bottom:16px}
+  .analysis-title{font-size:14px;font-weight:600;margin-bottom:4px}
+  .analysis-sub{font-size:12px;color:#9ca3af;margin-bottom:12px}
+  .insight-box{margin-top:8px;padding:8px 12px;border-radius:8px;font-size:12px;line-height:1.6}
+  .insight-purple{background:#f0f0ff;color:#6366f1}
+  .insight-yellow{background:#fef3c7;color:#92400e}
+  .entry-card{border:2px solid #6366f1;border-radius:12px;padding:18px;background:#fafafe;margin-bottom:16px}
+  .entry-title{font-size:14px;font-weight:600;color:#6366f1;margin-bottom:8px}
+  .entry-body{font-size:13px;color:#374151;line-height:1.8}
+  .entry-body p{margin-bottom:4px}
+  .comp-header{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:6px 0;border-bottom:1px solid #f0f0f3}
+  .comp-header div{font-size:11px;color:#9ca3af;font-weight:500}
+  .comp-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:10px 0;border-bottom:1px solid #f8f8fb;align-items:center}
+  .comp-row:last-child{border-bottom:none}
+  .comp-name{font-size:13px;font-weight:500}.comp-val{font-size:13px}.comp-star{font-size:13px;color:#f59e0b}
+  .price-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+  .price-label{width:60px;font-size:12px;color:#6b7280;text-align:right}
+  .price-bar-bg{flex:1;height:6px;background:#f1f1f4;border-radius:3px}
+  .price-bar-fg{height:100%;border-radius:3px}
+  .price-pct{width:36px;font-size:12px;font-weight:600;color:#1a1a2e}
+
+  /* Pain Points */
+  .pain-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+  .pain-stat{background:#f8f8fb;border-radius:10px;padding:14px 16px;text-align:center}
+  .pain-stat-num{font-size:24px;font-weight:700;color:#6366f1}
+  .pain-stat-unit{font-size:12px;color:#9ca3af}
+  .pain-stat-label{font-size:11px;color:#9ca3af;margin-top:2px}
+  .pain-table{border:1px solid #e8e8ec;border-radius:12px;overflow:hidden;margin-bottom:16px}
+  .pain-thead{display:grid;grid-template-columns:2fr 55px 2.5fr 55px;background:#f8f8fb;padding:10px 14px;gap:6px}
+  .pain-th{font-size:11px;font-weight:600;color:#9ca3af}
+  .pain-th.center{text-align:center}
+  .pain-row{display:grid;grid-template-columns:2fr 55px 2.5fr 55px;padding:11px 14px;gap:6px;border-top:1px solid #f3f3f6;align-items:center}
+  .pain-row:nth-child(odd){background:#fdfdfe}
+  .pain-text{font-size:12px;color:#dc2626}.pain-sell{font-size:12px;color:#059669;font-weight:500}
+  .freq-tag{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500;text-align:center;display:inline-block}
+  .freq-high{background:#fef2f2;color:#dc2626}.freq-mid{background:#fffbeb;color:#d97706}.freq-low{background:#f0fdf4;color:#16a34a}
+  .sell-card{border:2px solid #059669;border-radius:12px;padding:18px;background:#f0fdf4;margin-bottom:16px}
+  .sell-title{font-size:14px;font-weight:600;color:#059669;margin-bottom:8px}
+  .sell-body{font-size:13px;color:#374151;line-height:1.8}
+  .sell-body p{margin-bottom:4px}
+  .cta-row{display:flex;gap:10px}
+  .cta-primary{flex:1;padding:12px 0;border-radius:10px;border:none;background:#6366f1;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+  .cta-secondary{padding:12px 20px;border-radius:10px;border:1px solid #e8e8ec;background:#fff;color:#6b7280;font-size:14px;cursor:pointer;font-family:inherit}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-header"><span>≡</span> 收起历史对话</div>
+    <div class="sidebar-new"><div class="sidebar-new-btn">✏️ 新对话</div></div>
+    <div class="sidebar-section"><div class="sidebar-label">今天</div><div class="sidebar-item active">💬 今日选品机会推送</div><div class="sidebar-item">💬 宠物用品类目分析</div></div>
+    <div class="sidebar-section"><div class="sidebar-label">昨天</div><div class="sidebar-item">💬 应季日历查询</div></div>
+    <div class="sidebar-footer"><div class="sidebar-avatar">C</div><div><div class="sidebar-name">Cristal的店铺</div><div class="sidebar-sub">选品Agent · 专业版</div></div></div>
+  </div>
+
+  <div class="chat">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="agent-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+        <div><div class="chat-title">选品Agent</div><div class="chat-status">● 运行中 · 每日自动选品已开启</div></div>
+      </div>
+      <div class="chat-time">今天 08:30</div>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg agent"><div class="agent-avatar agent-avatar-sm"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="msg-bubble">早上好！我已完成今日的全网选品扫描。
+
+根据你的经营模式，为你筛选出高潜力商品机会。你可以在右侧面板顶部切换「有货源」和「无货源」模式，查看不同维度的选品建议。
+
+当前模式下，「防晒冰袖」评分最高，建议优先关注。
+
+👉 详细数据请查看右侧选品清单。</div></div>
+      <div class="msg user hidden" id="msg-1-user"><div class="msg-bubble">深入分析下防晒冰袖</div></div>
+      <div class="msg agent hidden" id="msg-1-agent"><div class="agent-avatar agent-avatar-sm"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="msg-bubble">好的，我已为你生成「防晒冰袖」的深度分析报告：
+
+📈 近8周搜索趋势 — 当前处于爆发前期
+🏪 TOP竞争对手分析 — 品牌 vs 白牌格局
+💰 价格带分布 — 建议切入 ¥18-25 区间
+🎯 综合入场建议 — 推荐入场，预估毛利60-70%
+
+👉 完整报告在右侧面板。</div></div>
+      <div class="msg user hidden" id="msg-2-user"><div class="msg-bubble">分析下这个品的差评</div></div>
+      <div class="msg agent hidden" id="msg-2-agent"><div class="agent-avatar agent-avatar-sm"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="msg-bubble">差评分析完成！从抖音站内 TOP30 链接中抓取了 1,263 条差评，提炼出 6 个核心痛点并转化为卖点建议。
+
+🔴 最高频痛点：「容易滑落」和「勒手发麻」
+🟢 最强卖点机会：「UPF50+认证」+「防滑设计」+「宽口无指套」
+
+👉 完整的痛点 → 卖点映射表在右侧面板。
+
+决定做这个品？点击「这个品我要做」直接发送到测品Agent。</div></div>
+    </div>
+    <div class="quick-actions" id="quickActions"><button class="quick-btn" onclick="goStep(1)">🔍 深入分析下防晒冰袖</button></div>
+    <div class="chat-input">
+      <div class="input-box"><span class="input-placeholder">输入您想问的问题</span><span style="color:#d0d0d6;font-size:18px;">📎</span><div class="input-send"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg></div></div>
+      <div class="toolbar"><div class="toolbar-item">🎬 短视频创作</div><div class="toolbar-item">🖼️ 智能图片</div><div class="toolbar-item">📊 数据分析</div><div class="toolbar-item">🔍 智能选品</div><div class="toolbar-item">📈 经营诊断</div></div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="panel">
+    <div class="panel-actions"><span>↓ 保存报告</span><span>×</span></div>
+
+    <!-- ==================== PANEL 0 ==================== -->
+    <div id="panel-0">
+      <div class="panel-header"><div class="panel-title">📋 今日选品机会清单</div><div class="panel-desc">2026年4月25日 · 综合多维度数据信号，按机会阶段排序</div></div>
+      <div class="panel-body">
+        <div class="mode-tabs">
+          <div class="mode-tab active" id="tab-nosource" onclick="switchMode('nosource')">⚡ 无货源模式 <span class="mode-badge mode-badge-nosource">快速跟进</span></div>
+          <div class="mode-tab" id="tab-factory" onclick="switchMode('factory')">🏭 有货源模式 <span class="mode-badge mode-badge-factory">趋势预判</span></div>
+        </div>
+
+        <!-- ===== No-Source Mode ===== -->
+        <div id="mode-nosource">
+
+          <!-- 确认跟进 -->
+          <div class="section-block">
+            <div class="section-header">
+              <div class="section-label"><div class="dot dot-red"></div>确认跟进 · 抖音搜索已起量，需求确定性最高</div>
+              <div class="section-logic">数据来源：抖音站内搜索量周环比 + 商品点击率 + 在售链接数（竞争密度）。搜索量已形成明确上升趋势时触发，确定性最高但竞争也最激烈。</div>
+              <span class="section-action-tag tag-urgent">建议动作：快速上架，靠素材差异化和测品效率取胜</span>
+            </div>
+            <div class="product-card top">
+              <div class="top-badge">🔥 TOP推荐</div>
+              <div class="product-head"><div><span class="product-name">防晒冰袖</span><span class="product-cat">服饰配饰</span></div><div class="product-score"><span class="trend-tag" style="color:#ef4444;">↑ 搜索暴涨</span><div class="score-box"><span class="score-num">92</span><span class="score-unit">分</span></div></div></div>
+              <div class="data-grid">
+                <div class="data-cell"><div class="data-val">+120%</div><div class="data-label">3日搜索涨幅</div></div>
+                <div class="data-cell"><div class="data-val">¥15-35</div><div class="data-label">均价区间</div></div>
+                <div class="data-cell"><div class="data-val">80-150</div><div class="data-label">头部GPM</div></div>
+                <div class="data-cell"><div class="data-val">¥3-5</div><div class="data-label">1688采购价</div></div>
+              </div>
+              <div class="product-reason">💡 搜索量3天暴涨120%，需求确认爆发。虽然在售链接数已有增长（+35%），但优质链接占比低，素材差异化仍有空间</div>
+              <div class="product-suggest">→ 建议快速上架3-5个变体链接测品，用AI生成差异化主图拉开点击率差距</div>
+              <div class="product-actions"><button class="btn-primary" onclick="goStep(1)">🔍 深入分析</button><button class="btn-secondary">不感兴趣</button></div>
+            </div>
+            <div class="product-card">
+              <div class="product-head"><div><span class="product-name">防晒面罩</span><span class="product-cat">服饰配饰</span></div><div class="product-score"><span class="trend-tag" style="color:#f59e0b;">↑ 搜索上升</span><div class="score-box"><span class="score-num">85</span><span class="score-unit">分</span></div></div></div>
+              <div class="data-grid">
+                <div class="data-cell"><div class="data-val">+68%</div><div class="data-label">3日搜索涨幅</div></div>
+                <div class="data-cell"><div class="data-val">¥12-28</div><div class="data-label">均价区间</div></div>
+                <div class="data-cell"><div class="data-val">70-130</div><div class="data-label">头部GPM</div></div>
+                <div class="data-cell"><div class="data-val">¥2-4</div><div class="data-label">1688采购价</div></div>
+              </div>
+              <div class="product-reason">💡 搜索趋势确认上升，与冰袖搭配可做组合链接提升客单价</div>
+              <div class="product-suggest">→ 建议与冰袖同步上架，做组合SKU（冰袖+面罩套装）测试转化</div>
+            </div>
+          </div>
+
+          <!-- 截流机会 -->
+          <div class="section-block">
+            <div class="section-header">
+              <div class="section-label"><div class="dot dot-orange"></div>截流机会 · 爆款视频正在跑量，搜索溢出流量大</div>
+              <div class="section-logic">数据来源：抖音短视频播放量增速 + 视频GPM + 视频带货成交额。当带货视频突然起量时触发，视频产生的搜索溢出流量可被同款链接截获。</div>
+              <span class="section-action-tag tag-watch">建议动作：24小时内上架同款，截获溢出流量</span>
+            </div>
+            <div class="product-card">
+              <div class="product-head"><div><span class="product-name">便携迷你风扇</span><span class="product-cat">数码家电</span></div><div class="product-score"><span class="trend-tag" style="color:#f59e0b;">🎬 视频正在爆</span><div class="score-box"><span class="score-num">87</span><span class="score-unit">分</span></div></div></div>
+              <div class="data-grid">
+                <div class="data-cell"><div class="data-val">380万</div><div class="data-label">视频播放量</div></div>
+                <div class="data-cell"><div class="data-val">GPM 95</div><div class="data-label">千次成交额</div></div>
+                <div class="data-cell"><div class="data-val">¥29.9</div><div class="data-label">视频带货价</div></div>
+                <div class="data-cell"><div class="data-val">¥8-12</div><div class="data-label">1688采购价</div></div>
+              </div>
+              <div class="product-reason">💡 挂脖款风扇视频昨日起量，GPM 95（高于品类均值2倍），视频仍在上升期，搜索溢出流量预计持续3-5天</div>
+              <div class="product-suggest">→ 建议立即找1688同款上架，优先用该视频同款关键词做标题优化</div>
+            </div>
+          </div>
+
+          <!-- 抢先布局 -->
+          <div class="section-block">
+            <div class="section-header">
+              <div class="section-label"><div class="dot dot-purple"></div>抢先布局 · 供给侧信号已出现，抖音端尚未起量</div>
+              <div class="section-logic">数据来源：1688出货量周环比 + 采购商家数变化。当供给侧出货暴涨但抖音搜索尚未同步时触发，通常领先抖音需求1-2周。</div>
+              <span class="section-action-tag tag-prepare">建议动作：提前上架，抢占信息差窗口</span>
+            </div>
+            <div class="product-card">
+              <div class="product-head"><div><span class="product-name">冰丝阔腿裤</span><span class="product-cat">服饰配饰</span></div><div class="product-score"><span class="trend-tag" style="color:#8b5cf6;">📦 供给侧信号</span><div class="score-box"><span class="score-num">80</span><span class="score-unit">分</span></div></div></div>
+              <div class="data-grid">
+                <div class="data-cell"><div class="data-val">+210%</div><div class="data-label">1688周出货涨幅</div></div>
+                <div class="data-cell"><div class="data-val">+85%</div><div class="data-label">采购商家数涨幅</div></div>
+                <div class="data-cell"><div class="data-val">+12%</div><div class="data-label">抖音搜索增长</div></div>
+                <div class="data-cell"><div class="data-val">低</div><div class="data-label">当前竞争密度</div></div>
+              </div>
+              <div class="product-reason">💡 1688出货量暴涨210%但抖音搜索仅增12%，供需差表明抖音端尚未爆发，当前在售链接少、竞争低</div>
+              <div class="product-suggest">→ 建议1-2周内完成上架，在抖音端起量前抢占坑位</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== Factory Mode ===== -->
+        <div id="mode-factory" class="hidden">
+
+          <!-- 6个月前瞻 -->
+          <div class="section-block">
+            <div class="section-header">
+              <div class="section-label"><div class="dot dot-blue"></div>6个月前瞻 · 产线方向决策 · 目标窗口10-11月</div>
+              <div class="section-logic">数据来源：去年同期品类搜索趋势与成交规模 + 品类年增长率 + 行业宏观趋势（户外/运动生活方式渗透率）+ 上游面料/原材料价格走势</div>
+            </div>
+            <div class="timeline-card">
+              <div class="timeline-header">
+                <div class="timeline-icon timeline-icon-blue">🔭</div>
+                <div>
+                  <div class="timeline-title">秋冬户外运动品类</div>
+                  <div class="timeline-sub">预计窗口期：10月-12月 · 决策容错：高（仅打版和面料采购成本）</div>
+                  <div class="timeline-sources">
+                    <span class="source-tag"><span class="src-dot" style="background:#3b82f6"></span>去年同期数据</span>
+                    <span class="source-tag"><span class="src-dot" style="background:#10b981"></span>品类增长率</span>
+                    <span class="source-tag"><span class="src-dot" style="background:#f59e0b"></span>面料价格走势</span>
+                  </div>
+                </div>
+              </div>
+              <div class="timeline-item"><div class="timeline-item-name">冲锋衣 / 软壳外套</div><div class="timeline-item-detail">去年同期品类增长62% · 户外露营人群年增长28% · 轻量化方向搜索占比提升至35%</div></div>
+              <div class="timeline-item"><div class="timeline-item-name">加绒运动裤</div><div class="timeline-item-detail">去年同期增长45% · 摇粒绒面料近期期货价格稳定，采购窗口好 · 束脚款占比超50%</div></div>
+              <div class="timeline-action action-blue">
+                <div class="action-title">📋 建议动作（本月内完成）</div>
+                1. 评估现有产线是否支持户外品类（针织/梭织能力）<br>
+                2. 启动面料供应商询价，锁定摇粒绒和防风面料采购价<br>
+                3. 5月中旬前做出Go/No-Go决策，确认后启动打版
+              </div>
+            </div>
+          </div>
+
+          <!-- 3个月规划 -->
+          <div class="section-block">
+            <div class="section-header">
+              <div class="section-label"><div class="dot dot-green"></div>3个月规划 · SKU规划与排产 · 目标窗口7-8月</div>
+              <div class="section-logic">数据来源：细分品类去年同期销量曲线 + 品类生命周期（起量/峰值/衰退时间点）+ TOP商家去年上架节奏 + 当前品类在售链接增速</div>
+            </div>
+            <div class="timeline-card">
+              <div class="timeline-header">
+                <div class="timeline-icon timeline-icon-orange">📐</div>
+                <div>
+                  <div class="timeline-title">夏末秋初过渡品类</div>
+                  <div class="timeline-sub">预计窗口期：7月-9月 · 决策容错：中（量产成本，首批建议控量）</div>
+                  <div class="timeline-sources">
+                    <span class="source-tag"><span class="src-dot" style="background:#10b981"></span>去年销量曲线</span>
+                    <span class="source-tag"><span class="src-dot" style="background:#8b5cf6"></span>生命周期分析</span>
+                    <span class="source-tag"><span class="src-dot" style="background:#ef4444"></span>竞品上架节奏</span>
+                  </div>
+                </div>
+              </div>
+              <div class="timeline-item"><div class="timeline-item-name">防晒衣（轻薄款）</div><div class="timeline-item-detail">去年7月起量、8月峰值、9月衰退 · 市场规模¥8.5亿 · TOP商家去年6月底开始上架 · 今年预计增长25%</div></div>
+              <div class="timeline-item"><div class="timeline-item-name">冰丝休闲裤</div><div class="timeline-item-detail">去年7-9月持续平稳需求 · 增长38% · 高腰阔腿+垂感面料搜索占比超60% · 竞品上架密度目前偏低</div></div>
+              <div class="timeline-action action-orange">
+                <div class="action-title">📋 建议动作（5月底前完成）</div>
+                1. 确认SKU规划：款式、颜色、尺码矩阵<br>
+                2. 5月底前完成打版确认，6月排产<br>
+                3. 首批控量（每款2000-3000件），7月初上架测品验证后再追加<br>
+                4. 参考去年TOP商家6月底上架节奏，不要晚于7月第一周
+              </div>
+            </div>
+          </div>
+
+          <!-- 1个月行动 -->
+          <div class="section-block">
+            <div class="section-header">
+              <div class="section-label"><div class="dot dot-red"></div>1个月行动 · 立即上架测品 · 目标窗口5-6月</div>
+              <div class="section-logic">数据来源：实时搜索趋势 + 竞争格局 + 价格分布 + GPM（与无货源模式相同数据，但解读侧重备货节奏和量产计划）</div>
+            </div>
+            <div class="product-card top">
+              <div class="top-badge">🔥 TOP推荐</div>
+              <div class="product-head"><div><span class="product-name">防晒冰袖</span><span class="product-cat">服饰配饰</span></div><div class="product-score"><span class="trend-tag" style="color:#ef4444;">↑ 即将爆发</span><div class="score-box"><span class="score-num">92</span><span class="score-unit">分</span></div></div></div>
+              <div class="data-grid">
+                <div class="data-cell"><div class="data-val">+47%</div><div class="data-label">周搜索增长</div></div>
+                <div class="data-cell"><div class="data-val">¥15-35</div><div class="data-label">市场均价</div></div>
+                <div class="data-cell"><div class="data-val">¥2.3亿</div><div class="data-label">月市场规模</div></div>
+                <div class="data-cell"><div class="data-val">60-70%</div><div class="data-label">预估毛利</div></div>
+              </div>
+              <div class="product-reason">💡 爆发前期，预计5月中旬达到峰值，去年同期持续热销至8月底。品类生命周期长，备货风险可控。</div>
+              <div class="product-suggest">→ 已投产的加速备货，首批5000件，4月底前上架测品</div>
+              <div class="product-actions"><button class="btn-primary" onclick="goStep(1)">🔍 深入分析</button><button class="btn-secondary">不感兴趣</button></div>
+            </div>
+            <div class="product-card">
+              <div class="product-head"><div><span class="product-name">便携迷你风扇</span><span class="product-cat">数码家电</span></div><div class="product-score"><span class="trend-tag" style="color:#f59e0b;">↑ 稳步上升</span><div class="score-box"><span class="score-num">87</span><span class="score-unit">分</span></div></div></div>
+              <div class="data-grid">
+                <div class="data-cell"><div class="data-val">+32%</div><div class="data-label">周搜索增长</div></div>
+                <div class="data-cell"><div class="data-val">¥25-60</div><div class="data-label">市场均价</div></div>
+                <div class="data-cell"><div class="data-val">¥1.8亿</div><div class="data-label">月市场规模</div></div>
+                <div class="data-cell"><div class="data-val">40-55%</div><div class="data-label">预估毛利</div></div>
+              </div>
+              <div class="product-reason">💡 需求确定性高但竞争激烈，有开模能力可走差异化外观路线</div>
+              <div class="product-suggest">→ 首批3000件，主推挂脖款+长续航卖点</div>
+            </div>
+            <div class="timeline-action action-red">
+              <div class="action-title">📋 建议动作（本周内完成）</div>
+              1. 防晒冰袖：首批5000件备货到位，本周内上架3-5个变体测品<br>
+              2. 迷你风扇：如已有模具，首批3000件本周下单，争取5月中上架<br>
+              3. 测品结果出来后立即追加备货，防晒品类爆发期仅4-6周，补货要快
+            </div>
+          </div>
+
+          <!-- 生产排期 -->
+          <div class="analysis-card">
+            <div class="analysis-title">📅 生产排期总览</div>
+            <div class="analysis-sub">基于品类窗口期倒推，三个时间维度的关键节点</div>
+            <div class="timeline-item" style="border-left:3px solid #ef4444;"><div class="timeline-item-name">本周 · 防晒冰袖上架测品</div><div class="timeline-item-detail">首批5000件 → 上架3-5个变体 → 3天出测品结果 → 追加备货</div></div>
+            <div class="timeline-item" style="border-left:3px solid #f59e0b;"><div class="timeline-item-name">5月底 · 夏末过渡品打版交付</div><div class="timeline-item-detail">防晒衣/冰丝裤打版确认 → 6月量产 → 7月初上架</div></div>
+            <div class="timeline-item" style="border-left:3px solid #3b82f6;"><div class="timeline-item-name">5月中 · 秋冬品类Go/No-Go决策</div><div class="timeline-item-detail">产线评估+面料询价完成 → 决定是否投入 → 8月量产 → 10月上架</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== PANEL 1: Deep Analysis ==================== -->
+    <div id="panel-1" class="hidden">
+      <div class="panel-header"><div class="panel-title">🔍 防晒冰袖 · 深度分析报告</div><div class="panel-desc">品类趋势 · 竞争格局 · 价格分布 · 入场建议</div></div>
+      <div class="panel-body">
+        <div class="analysis-card">
+          <div class="analysis-title">📈 搜索趋势（近8周）</div><div class="analysis-sub">搜索热度指数，基准值100</div>
+          <svg viewBox="0 0 400 140" style="width:100%;height:140px;">
+            <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6366f1" stop-opacity="0.2"/><stop offset="100%" stop-color="#6366f1" stop-opacity="0.02"/></linearGradient></defs>
+            <path d="M40,105 L86,99 L131,88 L177,75 L223,57 L269,35 L314,18 L360,8 L360,128 L40,128 Z" fill="url(#ag)"/>
+            <polyline points="40,105 86,99 131,88 177,75 223,57 269,35 314,18 360,8" fill="none" stroke="#6366f1" stroke-width="2"/>
+            <circle cx="40" cy="105" r="3" fill="#6366f1"/><circle cx="86" cy="99" r="3" fill="#6366f1"/><circle cx="131" cy="88" r="3" fill="#6366f1"/><circle cx="177" cy="75" r="3" fill="#6366f1"/><circle cx="223" cy="57" r="3" fill="#6366f1"/><circle cx="269" cy="35" r="3" fill="#6366f1"/><circle cx="314" cy="18" r="3" fill="#6366f1"/><circle cx="360" cy="8" r="3" fill="#6366f1"/>
+            <text x="40" y="97" text-anchor="middle" font-size="9" fill="#6366f1">32</text><text x="177" y="67" text-anchor="middle" font-size="9" fill="#6366f1">48</text><text x="269" y="27" text-anchor="middle" font-size="9" fill="#6366f1">72</text><text x="360" y="0" text-anchor="middle" font-size="9" fill="#6366f1">100</text>
+            <text x="40" y="138" text-anchor="middle" font-size="8" fill="#9ca3af">3.W1</text><text x="86" y="138" text-anchor="middle" font-size="8" fill="#9ca3af">3.W2</text><text x="131" y="138" text-anchor="middle" font-size="8" fill="#9ca3af">3.W3</text><text x="177" y="138" text-anchor="middle" font-size="8" fill="#9ca3af">3.W4</text><text x="223" y="138" text-anchor="middle" font-size="8" fill="#9ca3af">4.W1</text><text x="269" y="138" text-anchor="middle" font-size="8" fill="#9ca3af">4.W2</text><text x="314" y="138" text-anchor="middle" font-size="8" fill="#9ca3af">4.W3</text><text x="360" y="138" text-anchor="middle" font-size="8" fill="#9ca3af">4.W4</text>
+          </svg>
+          <div class="insight-box insight-purple">📊 趋势判断：当前处于爆发前期，预计5月中旬达到峰值。建议在4月底前完成测品上架。</div>
+        </div>
+        <div class="analysis-card">
+          <div class="analysis-title">🏪 竞争格局 · TOP商家</div>
+          <div class="comp-header"><div>店铺</div><div>价格</div><div>月销</div><div>评分</div></div>
+          <div class="comp-row"><div class="comp-name">蕉下旗舰店</div><div class="comp-val">¥39.9</div><div class="comp-val">10万+</div><div class="comp-star">⭐ 4.8</div></div>
+          <div class="comp-row"><div class="comp-name">ohsunny旗舰店</div><div class="comp-val">¥35.9</div><div class="comp-val">8万+</div><div class="comp-star">⭐ 4.7</div></div>
+          <div class="comp-row"><div class="comp-name">VVC官方旗舰</div><div class="comp-val">¥49.9</div><div class="comp-val">6万+</div><div class="comp-star">⭐ 4.9</div></div>
+          <div class="comp-row"><div class="comp-name">某白牌店铺A</div><div class="comp-val">¥12.9</div><div class="comp-val">15万+</div><div class="comp-star">⭐ 4.3</div></div>
+          <div class="insight-box insight-yellow">⚔️ 品牌占据¥30-50价格带，白牌低价款¥10-15销量更高。建议切入¥18-25价格带，用品质感打差异化。</div>
+        </div>
+        <div class="analysis-card">
+          <div class="analysis-title">💰 价格带分布</div>
+          <div style="margin-top:12px;">
+            <div class="price-row"><div class="price-label">¥0-15</div><div class="price-bar-bg"><div class="price-bar-fg" style="width:35%;background:#6366f1"></div></div><div class="price-pct">35%</div></div>
+            <div class="price-row"><div class="price-label">¥15-30</div><div class="price-bar-bg"><div class="price-bar-fg" style="width:28%;background:#8b5cf6"></div></div><div class="price-pct">28%</div></div>
+            <div class="price-row"><div class="price-label">¥30-50</div><div class="price-bar-bg"><div class="price-bar-fg" style="width:25%;background:#a78bfa"></div></div><div class="price-pct">25%</div></div>
+            <div class="price-row"><div class="price-label">¥50+</div><div class="price-bar-bg"><div class="price-bar-fg" style="width:12%;background:#c4b5fd"></div></div><div class="price-pct">12%</div></div>
+          </div>
+        </div>
+        <div class="entry-card">
+          <div class="entry-title">🎯 入场建议</div>
+          <div class="entry-body">
+            <p>✅ <b>推荐入场</b> — 机会评分 92/100</p>
+            <p>• 目标价格带：¥18-25（避开品牌溢价区和白牌低质区）</p>
+            <p>• 核心卖点：冰感科技面料 + UPF50+认证 + 防滑设计</p>
+            <p>• 最佳上架窗口：4月底前完成测品，5月初开始投流</p>
+            <p>• 预估毛利空间：60%-70%（1688采购价¥3-5，售价¥19.9）</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== PANEL 2: Pain Points ==================== -->
+    <div id="panel-2" class="hidden">
+      <div class="panel-header"><div class="panel-title">🔎 防晒冰袖 · 差评挖卖点报告</div><div class="panel-desc">数据来源：抖音站内 TOP30 在售链接 · 共 1,263 条差评 · 更新时间：今日</div></div>
+      <div class="panel-body">
+        <div class="pain-summary">
+          <div class="pain-stat"><div class="pain-stat-num">1,263<span class="pain-stat-unit"> 条</span></div><div class="pain-stat-label">抖音站内差评</div></div>
+          <div class="pain-stat"><div class="pain-stat-num">6<span class="pain-stat-unit"> 个</span></div><div class="pain-stat-label">提炼痛点</div></div>
+          <div class="pain-stat"><div class="pain-stat-num">6<span class="pain-stat-unit"> 个</span></div><div class="pain-stat-label">可转化卖点</div></div>
+        </div>
+        <div class="pain-table">
+          <div class="pain-thead"><div class="pain-th">用户痛点（抖音差评）</div><div class="pain-th center">频次</div><div class="pain-th">→ 可转化卖点</div><div class="pain-th center">优先级</div></div>
+          <div class="pain-row"><div class="pain-text">😤 容易滑落，骑车时往下掉</div><div style="text-align:center"><span class="freq-tag freq-high">高频</span></div><div class="pain-sell">✅ 硅胶防滑条设计</div><div style="text-align:center;font-size:13px">★★★</div></div>
+          <div class="pain-row"><div class="pain-text">😤 戴久了手指发麻，勒手</div><div style="text-align:center"><span class="freq-tag freq-high">高频</span></div><div class="pain-sell">✅ 无指套款/弹力宽口</div><div style="text-align:center;font-size:13px">★★★</div></div>
+          <div class="pain-row"><div class="pain-text">😤 洗几次就不冰了</div><div style="text-align:center"><span class="freq-tag freq-mid">中频</span></div><div class="pain-sell">✅ 冰感纤维科技面料</div><div style="text-align:center;font-size:13px">★★☆</div></div>
+          <div class="pain-row"><div class="pain-text">😤 太薄容易破，质量差</div><div style="text-align:center"><span class="freq-tag freq-mid">中频</span></div><div class="pain-sell">✅ 加厚耐磨+质保承诺</div><div style="text-align:center;font-size:13px">★★☆</div></div>
+          <div class="pain-row"><div class="pain-text">😤 颜色少，不好搭衣服</div><div style="text-align:center"><span class="freq-tag freq-low">低频</span></div><div class="pain-sell">✅ 20+莫兰迪色系</div><div style="text-align:center;font-size:13px">★☆☆</div></div>
+          <div class="pain-row"><div class="pain-text">😤 防晒效果存疑，没报告</div><div style="text-align:center"><span class="freq-tag freq-mid">中频</span></div><div class="pain-sell">✅ UPF50+检测报告随附</div><div style="text-align:center;font-size:13px">★★★</div></div>
+        </div>
+        <div class="sell-card">
+          <div class="sell-title">💡 卖点组合建议</div>
+          <div class="sell-body">
+            <p><b>主打卖点（标题必含）：</b></p>
+            <p>1. UPF50+权威认证 — 解决「防晒效果存疑」</p>
+            <p>2. 硅胶防滑条 — 解决「骑车滑落」第一痛点</p>
+            <p>3. 无指套宽口设计 — 解决「勒手发麻」</p>
+            <br>
+            <p><b>辅助卖点（详情页展示）：</b></p>
+            <p>4. 冰感纤维面料 — 持久凉感差异化</p>
+            <p>5. 20+莫兰迪色系 — 视觉吸引力</p>
+          </div>
+        </div>
+        <div class="cta-row">
+          <button class="cta-primary">🚀 这个品我要做 → 发送至测品Agent</button>
+          <button class="cta-secondary">换一个品</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchMode(mode){
+  document.getElementById('tab-nosource').className='mode-tab'+(mode==='nosource'?' active':'');
+  document.getElementById('tab-factory').className='mode-tab'+(mode==='factory'?' active':'');
+  document.getElementById('mode-nosource').className=mode==='nosource'?'':'hidden';
+  document.getElementById('mode-factory').className=mode==='factory'?'':'hidden';
+}
+function goStep(step){
+  if(step>=1){document.getElementById('msg-1-user').className='msg user';document.getElementById('msg-1-agent').className='msg agent';}
+  if(step>=2){document.getElementById('msg-2-user').className='msg user';document.getElementById('msg-2-agent').className='msg agent';}
+  var qa=document.getElementById('quickActions');
+  if(step===0)qa.innerHTML='<button class="quick-btn" onclick="goStep(1)">🔍 深入分析下防晒冰袖</button>';
+  else if(step===1)qa.innerHTML='<button class="quick-btn" onclick="goStep(2)">🔎 分析下这个品的差评</button>';
+  else qa.innerHTML='';
+  document.getElementById('panel-0').className=step===0?'':'hidden';
+  document.getElementById('panel-1').className=step===1?'':'hidden';
+  document.getElementById('panel-2').className=step===2?'':'hidden';
+  setTimeout(function(){document.getElementById('chatMessages').scrollTop=99999},50);
+}
+</script>
+</body>
+</html>

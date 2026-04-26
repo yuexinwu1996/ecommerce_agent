@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Demo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Noto Sans SC',-apple-system,sans-serif;background:#f5f5f7;min-height:100vh;display:flex;align-items:center;justify-content:center}
+  .container{max-width:800px;width:100%;padding:40px 24px}
+  h1{font-size:28px;font-weight:700;color:#1a1a2e;text-align:center;margin-bottom:8px}
+  .subtitle{text-align:center;color:#6b7280;font-size:14px;margin-bottom:40px}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .card{background:#fff;border-radius:16px;padding:28px 24px;border:1px solid #ebebef;cursor:pointer;transition:all .2s;text-decoration:none;color:inherit}
+  .card:hover{transform:translateY(-4px);box-shadow:0 12px 24px rgba(0,0,0,.08)}
+  .card-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:22px}
+  .card:nth-child(1) .card-icon{background:linear-gradient(135deg,#8b5cf6,#a78bfa);color:#fff}
+  .card:nth-child(2) .card-icon{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff}
+  .card:nth-child(3) .card-icon{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#fff}
+  .card-title{font-size:16px;font-weight:600;color:#1a1a2e;margin-bottom:8px}
+  .card-desc{font-size:13px;color:#6b7280;line-height:1.6}
+  @media(max-width:640px){.cards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Agent Demo</h1>
+  <p class="subtitle">Choose an agent to explore</p>
+  <div class="cards">
+    <a class="card" href="/competitor">
+      <div class="card-icon">R</div>
+      <div class="card-title">竞品复刻 Agent</div>
+      <div class="card-desc">竞品复刻 → 测品 Agent Demo</div>
+    </a>
+    <a class="card" href="/selection">
+      <div class="card-icon">S</div>
+      <div class="card-title">选品 Agent</div>
+      <div class="card-desc">选品 Agent Demo</div>
+    </a>
+    <a class="card" href="/tracking">
+      <div class="card-icon">T</div>
+      <div class="card-title">竞品追踪 Agent</div>
+      <div class="card-desc">竞品追踪 Agent Demo</div>
+    </a>
+  </div>
+</div>
+</body>
+</html>

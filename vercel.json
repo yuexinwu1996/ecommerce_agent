@@ -1,0 +1,17 @@
+{
+  "buildCommand": null,
+  "outputDirectory": ".",
+  "rewrites": [
+    { "source": "/competitor", "destination": "/竞品复刻agent.html" },
+    { "source": "/selection", "destination": "/选品agent.html" },
+    { "source": "/tracking", "destination": "/追踪agent.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    }
+  ]
+}
