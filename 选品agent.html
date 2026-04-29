@@ -103,6 +103,32 @@
   .source-tag{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:#9ca3af;background:#f8f8fb;padding:2px 8px;border-radius:6px;margin-right:4px;margin-bottom:4px}
   .source-tag .src-dot{width:4px;height:4px;border-radius:2px}
 
+  /* Product Visual Row */
+  .product-visual{display:flex;gap:14px;margin-bottom:12px}
+  .product-thumb{width:88px;height:88px;border-radius:10px;flex-shrink:0;overflow:hidden;position:relative;background:#f0f0ff}
+  .product-thumb svg{width:100%;height:100%;display:block}
+  .product-info{flex:1;min-width:0}
+  .platform-links{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .platform-link{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:500;text-decoration:none;transition:all .15s;cursor:pointer}
+  .platform-link-dy{background:#1a1a2e;color:#fff}
+  .platform-link-dy:hover{background:#2d2d44}
+  .platform-link-1688{background:#ff6a00;color:#fff}
+  .platform-link-1688:hover{background:#e55d00}
+  .platform-link-icon{width:14px;height:14px;display:flex;align-items:center;justify-content:center;font-size:11px}
+
+  /* Product Hero (for deep analysis & pain point panels) */
+  .product-hero{display:flex;gap:18px;margin-bottom:20px;padding:18px;background:#f8f8fb;border-radius:14px;border:1px solid #ebebef}
+  .product-hero-thumb{width:110px;height:110px;border-radius:12px;flex-shrink:0;overflow:hidden;background:#fff;border:1px solid #ebebef}
+  .product-hero-thumb svg{width:100%;height:100%;display:block}
+  .product-hero-info{flex:1}
+  .product-hero-name{font-size:18px;font-weight:700;color:#1a1a2e;margin-bottom:4px}
+  .product-hero-cat{font-size:12px;color:#9ca3af;margin-bottom:8px}
+  .product-hero-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .hero-tag{font-size:11px;padding:3px 10px;border-radius:6px;font-weight:500}
+  .hero-tag-purple{background:#f0f0ff;color:#6366f1}
+  .hero-tag-green{background:#f0fdf4;color:#16a34a}
+  .hero-tag-red{background:#fef2f2;color:#dc2626}
+
   /* Timeline */
   .timeline-card{border:1px solid #e8e8ec;border-radius:12px;padding:16px;margin-bottom:12px}
   .timeline-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
@@ -165,6 +191,32 @@
   .cta-row{display:flex;gap:10px}
   .cta-primary{flex:1;padding:12px 0;border-radius:10px;border:none;background:#6366f1;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
   .cta-secondary{padding:12px 20px;border-radius:10px;border:1px solid #e8e8ec;background:#fff;color:#6b7280;font-size:14px;cursor:pointer;font-family:inherit}
+  /* Ranking List */
+  .rank-list{margin-bottom:20px;border:1px solid #e8e8ec;border-radius:12px;overflow:hidden}
+  .rank-list-header{background:#f8f8fb;padding:10px 14px;display:grid;grid-template-columns:28px 2fr 60px 80px 60px;gap:6px;align-items:center}
+  .rank-list-header div{font-size:11px;font-weight:600;color:#9ca3af}
+  .rank-item{display:grid;grid-template-columns:28px 2fr 60px 80px 60px;gap:6px;padding:10px 14px;border-top:1px solid #f3f3f6;align-items:center;cursor:pointer;transition:background .15s}
+  .rank-item:hover{background:#fafafe}
+  .rank-item.active{background:#f0f0ff}
+  .rank-num{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+  .rank-1{background:linear-gradient(135deg,#f59e0b,#fbbf24)}.rank-2{background:linear-gradient(135deg,#94a3b8,#cbd5e1)}.rank-3{background:linear-gradient(135deg,#b45309,#d97706)}.rank-4{background:#d1d5db;color:#6b7280}
+  .rank-name{font-size:13px;font-weight:500}
+  .rank-score{font-size:13px;font-weight:700;color:#6366f1}
+  .rank-gap{font-size:12px;font-weight:600}
+  .rank-gap.hot{color:#dc2626}.rank-gap.warm{color:#f59e0b}.rank-gap.cool{color:#3b82f6}
+  .rank-window{font-size:11px;color:#6b7280}
+
+  /* Supply-Demand & Persona Row */
+  .sd-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+  .sd-card{background:#f8f8fb;border-radius:8px;padding:8px 10px}
+  .sd-card-title{font-size:10px;color:#9ca3af;margin-bottom:4px;display:flex;align-items:center;gap:4px}
+  .sd-card-title .sd-dot{width:5px;height:5px;border-radius:3px}
+  .sd-val{font-size:14px;font-weight:700;margin-bottom:2px}
+  .sd-val.gap-hot{color:#dc2626}.sd-val.gap-warm{color:#f59e0b}.sd-val.gap-cool{color:#3b82f6}
+  .sd-detail{font-size:10px;color:#6b7280;line-height:1.4}
+  .persona-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+  .persona-tag{font-size:10px;padding:2px 7px;border-radius:10px;background:#eff6ff;color:#1d4ed8;font-weight:500}
+  .persona-match{margin-top:4px;font-size:10px;color:#059669;font-weight:600}
   .hidden{display:none}
 </style>
 </head>
@@ -187,27 +239,50 @@
       <div class="chat-time">今天 08:30</div>
     </div>
     <div class="chat-messages" id="chatMessages">
-      <div class="msg agent"><div class="agent-avatar agent-avatar-sm"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="msg-bubble">早上好！我已完成今日的全网选品扫描。
+      <div class="msg agent"><div class="agent-avatar agent-avatar-sm"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="msg-bubble">早上好！我已完成今日的全网选品扫描，为你筛选出 4 个高潜力商品，按优先级排序如下：
 
-根据你的经营模式，为你筛选出高潜力商品机会。你可以在右侧面板顶部切换「有货源」和「无货源」模式，查看不同维度的选品建议。
+🥇 防晒冰袖 — 92分（供需缺口大、画像精准）
+🥈 便携迷你风扇 — 87分（截流窗口24h）
+🥉 防晒面罩 — 85分（可与冰袖组合）
+4️⃣ 冰丝阔腿裤 — 80分（供给侧信号，提前布局）
 
-当前模式下，「防晒冰袖」评分最高，建议优先关注。
+📐 评分方法说明：
+综合评分 = 需求热度(25%) + 供需缺口比(25%) + 消费者画像匹配度(20%) + 毛利空间(15%) + 竞争密度反向分(15%)
+• 需求热度：抖音搜索量3日/7日环比 + 视频播放量增速
+• 供需缺口比：搜索需求量 ÷ 在售有效链接数，>3.0为蓝海
+• 画像匹配度：历史出单消费者画像与你店铺人群的重合度
+• 毛利空间：(售价 - 1688采购价 - 平台费) ÷ 售价
+• 竞争密度：TOP50链接的品牌/白牌占比 + 新增链接增速
 
-👉 详细数据请查看右侧选品清单。</div></div>
+👉 详细数据请查看右侧选品清单，可切换「有货源/无货源」模式。</div></div>
       <div class="msg user hidden" id="msg-1-user"><div class="msg-bubble">深入分析下防晒冰袖</div></div>
-      <div class="msg agent hidden" id="msg-1-agent"><div class="agent-avatar agent-avatar-sm"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="msg-bubble">好的，我已为你生成「防晒冰袖」的深度分析报告：
+      <div class="msg agent hidden" id="msg-1-agent"><div class="agent-avatar agent-avatar-sm"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="msg-bubble">好的，我已为你生成「防晒冰袖」的深度分析报告。
 
-📈 近8周搜索趋势 — 当前处于爆发前期
-🏪 TOP竞争对手分析 — 品牌 vs 白牌格局
-💰 价格带分布 — 建议切入 ¥18-25 区间
-🎯 综合入场建议 — 推荐入场，预估毛利60-70%
+📐 分析维度与数据来源：
+• 搜索趋势：抖音站内搜索指数8周滚动窗口，环比计算爆发斜率
+• 竞争格局：抓取TOP50在售链接，按品牌/白牌/价格带归类
+• 价格带：全量在售链接价格分布 + 各带GPM（千次曝光成交额）
+• 入场测算：1688实时采购价 × 平台扣点(5%) × 退货率(8%) → 净毛利
+
+📊 关键结论：
+📈 搜索趋势 — 爆发前期，周环比+47%，预计5月中达峰
+🏪 竞争格局 — 品牌占¥30+，白牌占¥10-，¥18-25价格带有空隙
+💰 供需缺口比 — 3.8（蓝海线3.0），优质供给不足
+🎯 入场建议 — 推荐入场，净毛利60-70%
 
 👉 完整报告在右侧面板。</div></div>
       <div class="msg user hidden" id="msg-2-user"><div class="msg-bubble">分析下这个品的差评</div></div>
-      <div class="msg agent hidden" id="msg-2-agent"><div class="agent-avatar agent-avatar-sm"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="msg-bubble">差评分析完成！从抖音站内 TOP30 链接中抓取了 1,263 条差评，提炼出 6 个核心痛点并转化为卖点建议。
+      <div class="msg agent hidden" id="msg-2-agent"><div class="agent-avatar agent-avatar-sm"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="msg-bubble">差评分析完成！
 
-🔴 最高频痛点：「容易滑落」和「勒手发麻」
-🟢 最强卖点机会：「UPF50+认证」+「防滑设计」+「宽口无指套」
+📐 分析方法：
+• 数据源：抖音站内 TOP30 链接的全量评价（25,680条）
+• 筛选：NLP提取负面评价 1,263 条，聚类为6个核心痛点
+• 排序：按出现频次 × 情感强度加权，频次越高 + 情绪越强 = 优先级越高
+• 卖点转化：逐条匹配1688供给侧可实现的产品改进方案
+
+🔴 最高频痛点：「容易滑落」(312次) +「勒手发麻」(287次)
+🟢 最强卖点机会：UPF50+认证 + 防滑设计 + 宽口无指套
+💡 这3个卖点直接命中67%的差评用户痛点，竞品尚无完整覆盖
 
 👉 完整的痛点 → 卖点映射表在右侧面板。
 
@@ -236,6 +311,15 @@
         <!-- ===== No-Source Mode ===== -->
         <div id="mode-nosource">
 
+          <!-- 优先级排序列表 -->
+          <div class="rank-list">
+            <div class="rank-list-header"><div>#</div><div>商品</div><div>评分</div><div>供需缺口</div><div>窗口</div></div>
+            <div class="rank-item active" onclick="scrollToProduct('p-sleeve')"><div class="rank-num rank-1">1</div><div class="rank-name">防晒冰袖</div><div class="rank-score">92</div><div class="rank-gap hot">3.8 蓝海</div><div class="rank-window">3-5天</div></div>
+            <div class="rank-item" onclick="scrollToProduct('p-fan')"><div class="rank-num rank-2">2</div><div class="rank-name">便携迷你风扇</div><div class="rank-score">87</div><div class="rank-gap warm">2.6 中等</div><div class="rank-window">24h</div></div>
+            <div class="rank-item" onclick="scrollToProduct('p-mask')"><div class="rank-num rank-3">3</div><div class="rank-name">防晒面罩</div><div class="rank-score">85</div><div class="rank-gap warm">3.1 蓝海</div><div class="rank-window">3-5天</div></div>
+            <div class="rank-item" onclick="scrollToProduct('p-pants')"><div class="rank-num rank-4">4</div><div class="rank-name">冰丝阔腿裤</div><div class="rank-score">80</div><div class="rank-gap cool">5.2 极蓝</div><div class="rank-window">1-2周</div></div>
+          </div>
+
           <!-- 确认跟进 -->
           <div class="section-block">
             <div class="section-header">
@@ -243,28 +327,104 @@
               <div class="section-logic">数据来源：抖音站内搜索量周环比 + 商品点击率 + 在售链接数（竞争密度）。搜索量已形成明确上升趋势时触发，确定性最高但竞争也最激烈。</div>
               <span class="section-action-tag tag-urgent">建议动作：快速上架，靠素材差异化和测品效率取胜</span>
             </div>
-            <div class="product-card top">
+
+            <!-- 防晒冰袖 -->
+            <div class="product-card top" id="p-sleeve">
               <div class="top-badge">🔥 TOP推荐</div>
-              <div class="product-head"><div><span class="product-name">防晒冰袖</span><span class="product-cat">服饰配饰</span></div><div class="product-score"><span class="trend-tag" style="color:#ef4444;">↑ 搜索暴涨</span><div class="score-box"><span class="score-num">92</span><span class="score-unit">分</span></div></div></div>
+              <div class="product-visual">
+                <div class="product-thumb">
+                  <svg viewBox="0 0 88 88" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="88" height="88" fill="#f0f0ff"/>
+                    <defs><linearGradient id="sleeve1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c7d2fe"/><stop offset="100%" stop-color="#a5b4fc"/></linearGradient><linearGradient id="sleeve2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs>
+                    <path d="M22 18c0-2 1.5-4 4-4h8c2.5 0 4 2 4 4v42c0 5-3 8-8 8s-8-3-8-8V18z" fill="url(#sleeve1)" opacity=".85"/>
+                    <ellipse cx="30" cy="14" rx="6" ry="2.5" fill="#ddd6fe"/>
+                    <path d="M24 30h12" stroke="#e0e7ff" stroke-width="1" opacity=".6"/>
+                    <path d="M24 38h12" stroke="#e0e7ff" stroke-width="1" opacity=".6"/>
+                    <path d="M48 18c0-2 1.5-4 4-4h8c2.5 0 4 2 4 4v42c0 5-3 8-8 8s-8-3-8-8V18z" fill="url(#sleeve2)"/>
+                    <ellipse cx="56" cy="14" rx="6" ry="2.5" fill="#a5b4fc"/>
+                    <path d="M50 30h12" stroke="#c7d2fe" stroke-width="1" opacity=".6"/>
+                    <path d="M50 38h12" stroke="#c7d2fe" stroke-width="1" opacity=".6"/>
+                    <rect x="54" y="62" width="28" height="14" rx="3" fill="#6366f1"/>
+                    <text x="68" y="72" text-anchor="middle" font-size="7" fill="#fff" font-weight="700" font-family="sans-serif">UPF50+</text>
+                    <circle cx="16" cy="74" r="5" fill="#fbbf24" opacity=".4"/>
+                    <g stroke="#fbbf24" stroke-width="1" opacity=".3"><line x1="16" y1="66" x2="16" y2="64"/><line x1="16" y1="82" x2="16" y2="84"/><line x1="8" y1="74" x2="6" y2="74"/><line x1="24" y1="74" x2="26" y2="74"/></g>
+                  </svg>
+                </div>
+                <div class="product-info">
+                  <div class="product-head"><div><span class="product-name">防晒冰袖</span><span class="product-cat">服饰配饰</span></div><div class="product-score"><span class="trend-tag" style="color:#ef4444;">↑ 搜索暴涨</span><div class="score-box"><span class="score-num">92</span><span class="score-unit">分</span></div></div></div>
+                  <div class="platform-links">
+                    <a class="platform-link platform-link-dy" href="https://www.douyin.com/search/%E9%98%B2%E6%99%92%E5%86%B0%E8%A2%96" target="_blank"><span class="platform-link-icon">▶</span>抖音搜索</a>
+                    <a class="platform-link platform-link-1688" href="https://s.1688.com/selloffer/offer_search.htm?keywords=%B7%C0%C9%B9%B1%F9%D0%E4" target="_blank"><span class="platform-link-icon">🏭</span>1688找货</a>
+                  </div>
+                </div>
+              </div>
               <div class="data-grid">
                 <div class="data-cell"><div class="data-val">+120%</div><div class="data-label">3日搜索涨幅</div></div>
                 <div class="data-cell"><div class="data-val">¥15-35</div><div class="data-label">均价区间</div></div>
                 <div class="data-cell"><div class="data-val">80-150</div><div class="data-label">头部GPM</div></div>
                 <div class="data-cell"><div class="data-val">¥3-5</div><div class="data-label">1688采购价</div></div>
               </div>
-              <div class="product-reason">💡 搜索量3天暴涨120%，需求确认爆发。虽然在售链接数已有增长（+35%），但优质链接占比低，素材差异化仍有空间</div>
+              <div class="sd-row">
+                <div class="sd-card">
+                  <div class="sd-card-title"><span class="sd-dot" style="background:#dc2626"></span>供需缺口比</div>
+                  <div class="sd-val gap-hot">3.8 · 蓝海</div>
+                  <div class="sd-detail">日均搜索 12.6万 ÷ 有效链接 3.3万 = 3.8<br>缺口扩大中（上周 2.9 → 本周 3.8）</div>
+                </div>
+                <div class="sd-card">
+                  <div class="sd-card-title"><span class="sd-dot" style="background:#6366f1"></span>历史出单消费者画像</div>
+                  <div class="persona-tags"><span class="persona-tag">女性 82%</span><span class="persona-tag">25-35岁</span><span class="persona-tag">二三线城市</span></div>
+                  <div class="persona-tags"><span class="persona-tag">通勤/骑车</span><span class="persona-tag">价格敏感型</span></div>
+                  <div class="persona-match">✓ 与你店铺人群重合度 87%</div>
+                </div>
+              </div>
+              <div class="product-reason">💡 供需缺口 3.8（>3.0为蓝海），且缺口仍在扩大。核心买家为25-35岁通勤女性，对防晒有刚需但价格敏感，¥18-25价格带可精准命中</div>
               <div class="product-suggest">→ 建议快速上架3-5个变体链接测品，用AI生成差异化主图拉开点击率差距</div>
               <div class="product-actions"><button class="btn-primary" onclick="goStep(1)">🔍 深入分析</button><button class="btn-secondary">不感兴趣</button></div>
             </div>
-            <div class="product-card">
-              <div class="product-head"><div><span class="product-name">防晒面罩</span><span class="product-cat">服饰配饰</span></div><div class="product-score"><span class="trend-tag" style="color:#f59e0b;">↑ 搜索上升</span><div class="score-box"><span class="score-num">85</span><span class="score-unit">分</span></div></div></div>
+
+            <!-- 防晒面罩 -->
+            <div class="product-card" id="p-mask">
+              <div class="product-visual">
+                <div class="product-thumb">
+                  <svg viewBox="0 0 88 88" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="88" height="88" fill="#fdf4ff"/>
+                    <defs><linearGradient id="mask1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e9d5ff"/><stop offset="100%" stop-color="#c084fc"/></linearGradient></defs>
+                    <ellipse cx="44" cy="36" rx="18" ry="22" fill="#fce7f3" stroke="#f9a8d4" stroke-width="1"/>
+                    <path d="M26 32 Q28 24 44 22 Q60 24 62 32 L62 52 Q60 62 44 64 Q28 62 26 52 Z" fill="url(#mask1)" opacity=".85"/>
+                    <path d="M30 32 Q37 28 44 30 Q51 28 58 32" stroke="#7c3aed" stroke-width="1.5" fill="none"/>
+                    <ellipse cx="37" cy="32" rx="3" ry="2" fill="#1a1a2e"/><ellipse cx="51" cy="32" rx="3" ry="2" fill="#1a1a2e"/>
+                    <circle cx="38" cy="48" r="1" fill="#ddd6fe"/><circle cx="44" cy="48" r="1" fill="#ddd6fe"/><circle cx="50" cy="48" r="1" fill="#ddd6fe"/>
+                    <rect x="54" y="66" width="28" height="14" rx="3" fill="#8b5cf6"/>
+                    <text x="68" y="76" text-anchor="middle" font-size="7" fill="#fff" font-weight="700" font-family="sans-serif">UPF50+</text>
+                  </svg>
+                </div>
+                <div class="product-info">
+                  <div class="product-head"><div><span class="product-name">防晒面罩</span><span class="product-cat">服饰配饰</span></div><div class="product-score"><span class="trend-tag" style="color:#f59e0b;">↑ 搜索上升</span><div class="score-box"><span class="score-num">85</span><span class="score-unit">分</span></div></div></div>
+                  <div class="platform-links">
+                    <a class="platform-link platform-link-dy" href="https://www.douyin.com/search/%E9%98%B2%E6%99%92%E9%9D%A2%E7%BD%A9" target="_blank"><span class="platform-link-icon">▶</span>抖音搜索</a>
+                    <a class="platform-link platform-link-1688" href="https://s.1688.com/selloffer/offer_search.htm?keywords=%B7%C0%C9%B9%C3%E6%D5%D6" target="_blank"><span class="platform-link-icon">🏭</span>1688找货</a>
+                  </div>
+                </div>
+              </div>
               <div class="data-grid">
                 <div class="data-cell"><div class="data-val">+68%</div><div class="data-label">3日搜索涨幅</div></div>
                 <div class="data-cell"><div class="data-val">¥12-28</div><div class="data-label">均价区间</div></div>
                 <div class="data-cell"><div class="data-val">70-130</div><div class="data-label">头部GPM</div></div>
                 <div class="data-cell"><div class="data-val">¥2-4</div><div class="data-label">1688采购价</div></div>
               </div>
-              <div class="product-reason">💡 搜索趋势确认上升，与冰袖搭配可做组合链接提升客单价</div>
+              <div class="sd-row">
+                <div class="sd-card">
+                  <div class="sd-card-title"><span class="sd-dot" style="background:#f59e0b"></span>供需缺口比</div>
+                  <div class="sd-val gap-warm">3.1 · 蓝海</div>
+                  <div class="sd-detail">日均搜索 8.4万 ÷ 有效链接 2.7万 = 3.1<br>与冰袖人群高度重叠，可做组合截流</div>
+                </div>
+                <div class="sd-card">
+                  <div class="sd-card-title"><span class="sd-dot" style="background:#6366f1"></span>历史出单消费者画像</div>
+                  <div class="persona-tags"><span class="persona-tag">女性 88%</span><span class="persona-tag">22-35岁</span><span class="persona-tag">骑车/户外</span></div>
+                  <div class="persona-match">✓ 与你店铺人群重合度 84%</div>
+                </div>
+              </div>
+              <div class="product-reason">💡 搜索趋势确认上升，买家画像与冰袖高度重合（88%女性/骑车通勤），做组合SKU可提升客单价至¥30+</div>
               <div class="product-suggest">→ 建议与冰袖同步上架，做组合SKU（冰袖+面罩套装）测试转化</div>
             </div>
           </div>
@@ -276,15 +436,54 @@
               <div class="section-logic">数据来源：抖音短视频播放量增速 + 视频GPM + 视频带货成交额。当带货视频突然起量时触发，视频产生的搜索溢出流量可被同款链接截获。</div>
               <span class="section-action-tag tag-watch">建议动作：24小时内上架同款，截获溢出流量</span>
             </div>
-            <div class="product-card">
-              <div class="product-head"><div><span class="product-name">便携迷你风扇</span><span class="product-cat">数码家电</span></div><div class="product-score"><span class="trend-tag" style="color:#f59e0b;">🎬 视频正在爆</span><div class="score-box"><span class="score-num">87</span><span class="score-unit">分</span></div></div></div>
+            <div class="product-card" id="p-fan">
+              <div class="product-visual">
+                <div class="product-thumb">
+                  <svg viewBox="0 0 88 88" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="88" height="88" fill="#eff6ff"/>
+                    <defs><linearGradient id="fan1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#93c5fd"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient></defs>
+                    <rect x="38" y="44" width="12" height="30" rx="6" fill="#e0e7ff"/>
+                    <rect x="40" y="46" width="8" height="12" rx="4" fill="#c7d2fe"/>
+                    <circle cx="44" cy="32" r="18" fill="url(#fan1)" opacity=".15" stroke="#3b82f6" stroke-width="1.5"/>
+                    <g transform="translate(44,32)">
+                      <ellipse cx="0" cy="-8" rx="4" ry="9" fill="#60a5fa" opacity=".7" transform="rotate(0)"/>
+                      <ellipse cx="0" cy="-8" rx="4" ry="9" fill="#3b82f6" opacity=".7" transform="rotate(120)"/>
+                      <ellipse cx="0" cy="-8" rx="4" ry="9" fill="#93c5fd" opacity=".7" transform="rotate(240)"/>
+                    </g>
+                    <circle cx="44" cy="32" r="4" fill="#1e40af"/><circle cx="44" cy="32" r="2" fill="#fff"/>
+                    <g stroke="#93c5fd" stroke-width="1" opacity=".5"><path d="M66 26 Q72 28 68 32" fill="none"/><path d="M66 32 Q74 34 70 38" fill="none"/><path d="M64 38 Q70 40 66 44" fill="none"/></g>
+                    <rect x="4" y="68" width="30" height="14" rx="3" fill="#3b82f6"/>
+                    <text x="19" y="78" text-anchor="middle" font-size="7" fill="#fff" font-weight="600" font-family="sans-serif">8h续航</text>
+                  </svg>
+                </div>
+                <div class="product-info">
+                  <div class="product-head"><div><span class="product-name">便携迷你风扇</span><span class="product-cat">数码家电</span></div><div class="product-score"><span class="trend-tag" style="color:#f59e0b;">🎬 视频正在爆</span><div class="score-box"><span class="score-num">87</span><span class="score-unit">分</span></div></div></div>
+                  <div class="platform-links">
+                    <a class="platform-link platform-link-dy" href="https://www.douyin.com/search/%E6%8C%82%E8%84%96%E9%A3%8E%E6%89%87" target="_blank"><span class="platform-link-icon">▶</span>抖音搜索</a>
+                    <a class="platform-link platform-link-1688" href="https://s.1688.com/selloffer/offer_search.htm?keywords=%B1%E3%D0%AF%C3%D4%C4%E3%B7%E7%C9%C8" target="_blank"><span class="platform-link-icon">🏭</span>1688找货</a>
+                  </div>
+                </div>
+              </div>
               <div class="data-grid">
                 <div class="data-cell"><div class="data-val">380万</div><div class="data-label">视频播放量</div></div>
                 <div class="data-cell"><div class="data-val">GPM 95</div><div class="data-label">千次成交额</div></div>
                 <div class="data-cell"><div class="data-val">¥29.9</div><div class="data-label">视频带货价</div></div>
                 <div class="data-cell"><div class="data-val">¥8-12</div><div class="data-label">1688采购价</div></div>
               </div>
-              <div class="product-reason">💡 挂脖款风扇视频昨日起量，GPM 95（高于品类均值2倍），视频仍在上升期，搜索溢出流量预计持续3-5天</div>
+              <div class="sd-row">
+                <div class="sd-card">
+                  <div class="sd-card-title"><span class="sd-dot" style="background:#f59e0b"></span>供需缺口比</div>
+                  <div class="sd-val gap-warm">2.6 · 中等</div>
+                  <div class="sd-detail">视频溢出搜索激增，但同款链接跟进快<br>窗口仅24h，需抢速度</div>
+                </div>
+                <div class="sd-card">
+                  <div class="sd-card-title"><span class="sd-dot" style="background:#6366f1"></span>历史出单消费者画像</div>
+                  <div class="persona-tags"><span class="persona-tag">女性 65%</span><span class="persona-tag">18-30岁</span><span class="persona-tag">学生/职场</span></div>
+                  <div class="persona-tags"><span class="persona-tag">户外通勤</span><span class="persona-tag">颜值驱动</span></div>
+                  <div class="persona-match">✓ 与你店铺人群重合度 72%</div>
+                </div>
+              </div>
+              <div class="product-reason">💡 视频溢出搜索量大但供需缺口 2.6（中等），核心买家为18-30岁颜值驱动型消费者，需在外观设计上做差异化</div>
               <div class="product-suggest">→ 建议立即找1688同款上架，优先用该视频同款关键词做标题优化</div>
             </div>
           </div>
@@ -296,15 +495,50 @@
               <div class="section-logic">数据来源：1688出货量周环比 + 采购商家数变化。当供给侧出货暴涨但抖音搜索尚未同步时触发，通常领先抖音需求1-2周。</div>
               <span class="section-action-tag tag-prepare">建议动作：提前上架，抢占信息差窗口</span>
             </div>
-            <div class="product-card">
-              <div class="product-head"><div><span class="product-name">冰丝阔腿裤</span><span class="product-cat">服饰配饰</span></div><div class="product-score"><span class="trend-tag" style="color:#8b5cf6;">📦 供给侧信号</span><div class="score-box"><span class="score-num">80</span><span class="score-unit">分</span></div></div></div>
+            <div class="product-card" id="p-pants">
+              <div class="product-visual">
+                <div class="product-thumb">
+                  <svg viewBox="0 0 88 88" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="88" height="88" fill="#f5f3ff"/>
+                    <defs><linearGradient id="pants1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c4b5fd"/><stop offset="100%" stop-color="#8b5cf6"/></linearGradient></defs>
+                    <rect x="22" y="14" width="44" height="10" rx="3" fill="#a78bfa"/>
+                    <line x1="44" y1="14" x2="44" y2="24" stroke="#8b5cf6" stroke-width="1.5"/>
+                    <path d="M22 24 L18 72 Q18 76 22 76 L40 76 Q42 76 42 72 L44 24 Z" fill="url(#pants1)" opacity=".8"/>
+                    <path d="M44 24 L46 72 Q46 76 48 76 L66 76 Q70 76 70 72 L66 24 Z" fill="url(#pants1)"/>
+                    <path d="M28 30 Q26 50 22 70" stroke="#ddd6fe" stroke-width="1" fill="none" opacity=".5"/>
+                    <path d="M56 30 Q58 50 62 70" stroke="#c4b5fd" stroke-width="1" fill="none" opacity=".5"/>
+                    <rect x="54" y="6" width="28" height="14" rx="3" fill="#8b5cf6"/>
+                    <text x="68" y="16" text-anchor="middle" font-size="7" fill="#fff" font-weight="700" font-family="sans-serif">冰丝</text>
+                  </svg>
+                </div>
+                <div class="product-info">
+                  <div class="product-head"><div><span class="product-name">冰丝阔腿裤</span><span class="product-cat">服饰配饰</span></div><div class="product-score"><span class="trend-tag" style="color:#8b5cf6;">📦 供给侧信号</span><div class="score-box"><span class="score-num">80</span><span class="score-unit">分</span></div></div></div>
+                  <div class="platform-links">
+                    <a class="platform-link platform-link-dy" href="https://www.douyin.com/search/%E5%86%B0%E4%B8%9D%E9%98%94%E8%85%BF%E8%A3%A4" target="_blank"><span class="platform-link-icon">▶</span>抖音搜索</a>
+                    <a class="platform-link platform-link-1688" href="https://s.1688.com/selloffer/offer_search.htm?keywords=%B1%F9%CB%BF%C0%AB%CD%C8%BF%E3" target="_blank"><span class="platform-link-icon">🏭</span>1688找货</a>
+                  </div>
+                </div>
+              </div>
               <div class="data-grid">
                 <div class="data-cell"><div class="data-val">+210%</div><div class="data-label">1688周出货涨幅</div></div>
                 <div class="data-cell"><div class="data-val">+85%</div><div class="data-label">采购商家数涨幅</div></div>
                 <div class="data-cell"><div class="data-val">+12%</div><div class="data-label">抖音搜索增长</div></div>
                 <div class="data-cell"><div class="data-val">低</div><div class="data-label">当前竞争密度</div></div>
               </div>
-              <div class="product-reason">💡 1688出货量暴涨210%但抖音搜索仅增12%，供需差表明抖音端尚未爆发，当前在售链接少、竞争低</div>
+              <div class="sd-row">
+                <div class="sd-card">
+                  <div class="sd-card-title"><span class="sd-dot" style="background:#3b82f6"></span>供需缺口比</div>
+                  <div class="sd-val gap-cool">5.2 · 极蓝海</div>
+                  <div class="sd-detail">1688出货暴涨但抖音在售链接极少<br>供给领先需求1-2周，窗口最佳</div>
+                </div>
+                <div class="sd-card">
+                  <div class="sd-card-title"><span class="sd-dot" style="background:#6366f1"></span>历史出单消费者画像</div>
+                  <div class="persona-tags"><span class="persona-tag">女性 91%</span><span class="persona-tag">25-40岁</span><span class="persona-tag">宝妈/居家</span></div>
+                  <div class="persona-tags"><span class="persona-tag">舒适优先</span><span class="persona-tag">高腰显瘦</span></div>
+                  <div class="persona-match">✓ 与你店铺人群重合度 79%</div>
+                </div>
+              </div>
+              <div class="product-reason">💡 供需缺口高达 5.2（极蓝海），1688出货暴涨而抖音端几乎无竞争。核心买家为25-40岁宝妈/居家人群，对舒适度和高腰显瘦有刚需</div>
               <div class="product-suggest">→ 建议1-2周内完成上架，在抖音端起量前抢占坑位</div>
             </div>
           </div>
@@ -380,9 +614,31 @@
               <div class="section-label"><div class="dot dot-red"></div>1个月行动 · 立即上架测品 · 目标窗口5-6月</div>
               <div class="section-logic">数据来源：实时搜索趋势 + 竞争格局 + 价格分布 + GPM（与无货源模式相同数据，但解读侧重备货节奏和量产计划）</div>
             </div>
+
+            <!-- 防晒冰袖 (factory mode) -->
             <div class="product-card top">
               <div class="top-badge">🔥 TOP推荐</div>
-              <div class="product-head"><div><span class="product-name">防晒冰袖</span><span class="product-cat">服饰配饰</span></div><div class="product-score"><span class="trend-tag" style="color:#ef4444;">↑ 即将爆发</span><div class="score-box"><span class="score-num">92</span><span class="score-unit">分</span></div></div></div>
+              <div class="product-visual">
+                <div class="product-thumb">
+                  <svg viewBox="0 0 88 88" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="88" height="88" fill="#f0f0ff"/>
+                    <defs><linearGradient id="sleeve1f" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c7d2fe"/><stop offset="100%" stop-color="#a5b4fc"/></linearGradient><linearGradient id="sleeve2f" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs>
+                    <path d="M22 18c0-2 1.5-4 4-4h8c2.5 0 4 2 4 4v42c0 5-3 8-8 8s-8-3-8-8V18z" fill="url(#sleeve1f)" opacity=".85"/>
+                    <ellipse cx="30" cy="14" rx="6" ry="2.5" fill="#ddd6fe"/>
+                    <path d="M48 18c0-2 1.5-4 4-4h8c2.5 0 4 2 4 4v42c0 5-3 8-8 8s-8-3-8-8V18z" fill="url(#sleeve2f)"/>
+                    <ellipse cx="56" cy="14" rx="6" ry="2.5" fill="#a5b4fc"/>
+                    <rect x="54" y="62" width="28" height="14" rx="3" fill="#6366f1"/>
+                    <text x="68" y="72" text-anchor="middle" font-size="7" fill="#fff" font-weight="700" font-family="sans-serif">UPF50+</text>
+                  </svg>
+                </div>
+                <div class="product-info">
+                  <div class="product-head"><div><span class="product-name">防晒冰袖</span><span class="product-cat">服饰配饰</span></div><div class="product-score"><span class="trend-tag" style="color:#ef4444;">↑ 即将爆发</span><div class="score-box"><span class="score-num">92</span><span class="score-unit">分</span></div></div></div>
+                  <div class="platform-links">
+                    <a class="platform-link platform-link-dy" href="https://www.douyin.com/search/%E9%98%B2%E6%99%92%E5%86%B0%E8%A2%96" target="_blank"><span class="platform-link-icon">▶</span>抖音搜索</a>
+                    <a class="platform-link platform-link-1688" href="https://s.1688.com/selloffer/offer_search.htm?keywords=%B7%C0%C9%B9%B1%F9%D0%E4" target="_blank"><span class="platform-link-icon">🏭</span>1688找货</a>
+                  </div>
+                </div>
+              </div>
               <div class="data-grid">
                 <div class="data-cell"><div class="data-val">+47%</div><div class="data-label">周搜索增长</div></div>
                 <div class="data-cell"><div class="data-val">¥15-35</div><div class="data-label">市场均价</div></div>
@@ -393,8 +649,34 @@
               <div class="product-suggest">→ 已投产的加速备货，首批5000件，4月底前上架测品</div>
               <div class="product-actions"><button class="btn-primary" onclick="goStep(1)">🔍 深入分析</button><button class="btn-secondary">不感兴趣</button></div>
             </div>
+
+            <!-- 便携迷你风扇 (factory mode) -->
             <div class="product-card">
-              <div class="product-head"><div><span class="product-name">便携迷你风扇</span><span class="product-cat">数码家电</span></div><div class="product-score"><span class="trend-tag" style="color:#f59e0b;">↑ 稳步上升</span><div class="score-box"><span class="score-num">87</span><span class="score-unit">分</span></div></div></div>
+              <div class="product-visual">
+                <div class="product-thumb">
+                  <svg viewBox="0 0 88 88" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="88" height="88" fill="#eff6ff"/>
+                    <defs><linearGradient id="fan1f" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#93c5fd"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient></defs>
+                    <rect x="38" y="44" width="12" height="30" rx="6" fill="#e0e7ff"/>
+                    <circle cx="44" cy="32" r="18" fill="url(#fan1f)" opacity=".15" stroke="#3b82f6" stroke-width="1.5"/>
+                    <g transform="translate(44,32)">
+                      <ellipse cx="0" cy="-8" rx="4" ry="9" fill="#60a5fa" opacity=".7" transform="rotate(0)"/>
+                      <ellipse cx="0" cy="-8" rx="4" ry="9" fill="#3b82f6" opacity=".7" transform="rotate(120)"/>
+                      <ellipse cx="0" cy="-8" rx="4" ry="9" fill="#93c5fd" opacity=".7" transform="rotate(240)"/>
+                    </g>
+                    <circle cx="44" cy="32" r="4" fill="#1e40af"/><circle cx="44" cy="32" r="2" fill="#fff"/>
+                    <rect x="4" y="68" width="30" height="14" rx="3" fill="#3b82f6"/>
+                    <text x="19" y="78" text-anchor="middle" font-size="7" fill="#fff" font-weight="600" font-family="sans-serif">8h续航</text>
+                  </svg>
+                </div>
+                <div class="product-info">
+                  <div class="product-head"><div><span class="product-name">便携迷你风扇</span><span class="product-cat">数码家电</span></div><div class="product-score"><span class="trend-tag" style="color:#f59e0b;">↑ 稳步上升</span><div class="score-box"><span class="score-num">87</span><span class="score-unit">分</span></div></div></div>
+                  <div class="platform-links">
+                    <a class="platform-link platform-link-dy" href="https://www.douyin.com/search/%E6%8C%82%E8%84%96%E9%A3%8E%E6%89%87" target="_blank"><span class="platform-link-icon">▶</span>抖音搜索</a>
+                    <a class="platform-link platform-link-1688" href="https://s.1688.com/selloffer/offer_search.htm?keywords=%B1%E3%D0%AF%C3%D4%C4%E3%B7%E7%C9%C8" target="_blank"><span class="platform-link-icon">🏭</span>1688找货</a>
+                  </div>
+                </div>
+              </div>
               <div class="data-grid">
                 <div class="data-cell"><div class="data-val">+32%</div><div class="data-label">周搜索增长</div></div>
                 <div class="data-cell"><div class="data-val">¥25-60</div><div class="data-label">市场均价</div></div>
@@ -428,6 +710,50 @@
     <div id="panel-1" class="hidden">
       <div class="panel-header"><div class="panel-title">🔍 防晒冰袖 · 深度分析报告</div><div class="panel-desc">品类趋势 · 竞争格局 · 价格分布 · 入场建议</div></div>
       <div class="panel-body">
+
+        <!-- Product Hero -->
+        <div class="product-hero">
+          <div class="product-hero-thumb">
+            <svg viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg">
+              <rect width="110" height="110" fill="#fafafe"/>
+              <defs><linearGradient id="sh1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c7d2fe"/><stop offset="100%" stop-color="#a5b4fc"/></linearGradient><linearGradient id="sh2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs>
+              <!-- Left sleeve -->
+              <path d="M26 20c0-3 2-5 5-5h10c3 0 5 2 5 5v52c0 6-4 10-10 10s-10-4-10-10V20z" fill="url(#sh1)" opacity=".85"/>
+              <ellipse cx="36" cy="15" rx="7.5" ry="3" fill="#ddd6fe"/>
+              <path d="M29 35h14" stroke="#e0e7ff" stroke-width="1" opacity=".6"/>
+              <path d="M29 45h14" stroke="#e0e7ff" stroke-width="1" opacity=".6"/>
+              <path d="M29 55h14" stroke="#e0e7ff" stroke-width="1" opacity=".4"/>
+              <!-- Right sleeve -->
+              <path d="M56 20c0-3 2-5 5-5h10c3 0 5 2 5 5v52c0 6-4 10-10 10s-10-4-10-10V20z" fill="url(#sh2)"/>
+              <ellipse cx="66" cy="15" rx="7.5" ry="3" fill="#a5b4fc"/>
+              <path d="M59 35h14" stroke="#c7d2fe" stroke-width="1" opacity=".6"/>
+              <path d="M59 45h14" stroke="#c7d2fe" stroke-width="1" opacity=".6"/>
+              <path d="M59 55h14" stroke="#c7d2fe" stroke-width="1" opacity=".4"/>
+              <!-- UPF badge -->
+              <rect x="68" y="82" width="34" height="16" rx="4" fill="#6366f1"/>
+              <text x="85" y="93" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="700" font-family="sans-serif">UPF50+</text>
+              <!-- Anti-slip dots -->
+              <circle cx="36" cy="65" r="1.5" fill="#a5b4fc" opacity=".5"/><circle cx="40" cy="67" r="1.5" fill="#a5b4fc" opacity=".5"/><circle cx="36" cy="69" r="1.5" fill="#a5b4fc" opacity=".5"/>
+              <!-- Sun icon -->
+              <circle cx="16" cy="88" r="6" fill="#fbbf24" opacity=".35"/>
+              <g stroke="#fbbf24" stroke-width="1" opacity=".25"><line x1="16" y1="79" x2="16" y2="76"/><line x1="16" y1="97" x2="16" y2="100"/><line x1="7" y1="88" x2="4" y2="88"/><line x1="25" y1="88" x2="28" y2="88"/></g>
+            </svg>
+          </div>
+          <div class="product-hero-info">
+            <div class="product-hero-name">防晒冰袖</div>
+            <div class="product-hero-cat">服饰配饰 · 防晒品类</div>
+            <div class="product-hero-tags">
+              <span class="hero-tag hero-tag-purple">机会评分 92/100</span>
+              <span class="hero-tag hero-tag-red">↑ 搜索暴涨 +120%</span>
+              <span class="hero-tag hero-tag-green">毛利 60-70%</span>
+            </div>
+            <div class="platform-links">
+              <a class="platform-link platform-link-dy" href="https://www.douyin.com/search/%E9%98%B2%E6%99%92%E5%86%B0%E8%A2%96" target="_blank"><span class="platform-link-icon">▶</span>抖音搜索</a>
+              <a class="platform-link platform-link-1688" href="https://s.1688.com/selloffer/offer_search.htm?keywords=%B7%C0%C9%B9%B1%F9%D0%E4" target="_blank"><span class="platform-link-icon">🏭</span>1688找货</a>
+            </div>
+          </div>
+        </div>
+
         <div class="analysis-card">
           <div class="analysis-title">📈 搜索趋势（近8周）</div><div class="analysis-sub">搜索热度指数，基准值100</div>
           <svg viewBox="0 0 400 140" style="width:100%;height:140px;">
@@ -475,6 +801,45 @@
     <div id="panel-2" class="hidden">
       <div class="panel-header"><div class="panel-title">🔎 防晒冰袖 · 差评挖卖点报告</div><div class="panel-desc">数据来源：抖音站内 TOP30 在售链接 · 共 1,263 条差评 · 更新时间：今日</div></div>
       <div class="panel-body">
+
+        <!-- Product Hero -->
+        <div class="product-hero">
+          <div class="product-hero-thumb">
+            <svg viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg">
+              <rect width="110" height="110" fill="#fafafe"/>
+              <defs><linearGradient id="ph1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c7d2fe"/><stop offset="100%" stop-color="#a5b4fc"/></linearGradient><linearGradient id="ph2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs>
+              <path d="M26 20c0-3 2-5 5-5h10c3 0 5 2 5 5v52c0 6-4 10-10 10s-10-4-10-10V20z" fill="url(#ph1)" opacity=".85"/>
+              <ellipse cx="36" cy="15" rx="7.5" ry="3" fill="#ddd6fe"/>
+              <path d="M56 20c0-3 2-5 5-5h10c3 0 5 2 5 5v52c0 6-4 10-10 10s-10-4-10-10V20z" fill="url(#ph2)"/>
+              <ellipse cx="66" cy="15" rx="7.5" ry="3" fill="#a5b4fc"/>
+              <!-- Pain point indicators -->
+              <circle cx="36" cy="55" r="8" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+              <text x="36" y="58.5" text-anchor="middle" font-size="10" fill="#dc2626">!</text>
+              <circle cx="66" cy="55" r="8" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+              <text x="66" y="58.5" text-anchor="middle" font-size="10" fill="#dc2626">!</text>
+              <!-- Arrow to solution -->
+              <path d="M50 80 L55 76 L55 84 Z" fill="#059669"/>
+              <rect x="58" y="76" width="38" height="16" rx="4" fill="#059669"/>
+              <text x="77" y="87" text-anchor="middle" font-size="7" fill="#fff" font-weight="700" font-family="sans-serif">防滑设计</text>
+              <!-- Slip indicators on left sleeve -->
+              <path d="M22 60 L18 62" stroke="#fca5a5" stroke-width="1.5"/><path d="M22 64 L18 66" stroke="#fca5a5" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <div class="product-hero-info">
+            <div class="product-hero-name">防晒冰袖</div>
+            <div class="product-hero-cat">差评痛点分析 · TOP30链接</div>
+            <div class="product-hero-tags">
+              <span class="hero-tag hero-tag-red">1,263 条差评</span>
+              <span class="hero-tag hero-tag-purple">6 个痛点</span>
+              <span class="hero-tag hero-tag-green">6 个卖点机会</span>
+            </div>
+            <div class="platform-links">
+              <a class="platform-link platform-link-dy" href="https://www.douyin.com/search/%E9%98%B2%E6%99%92%E5%86%B0%E8%A2%96" target="_blank"><span class="platform-link-icon">▶</span>抖音搜索</a>
+              <a class="platform-link platform-link-1688" href="https://s.1688.com/selloffer/offer_search.htm?keywords=%B7%C0%C9%B9%B1%F9%D0%E4" target="_blank"><span class="platform-link-icon">🏭</span>1688找货</a>
+            </div>
+          </div>
+        </div>
+
         <div class="pain-summary">
           <div class="pain-stat"><div class="pain-stat-num">1,263<span class="pain-stat-unit"> 条</span></div><div class="pain-stat-label">抖音站内差评</div></div>
           <div class="pain-stat"><div class="pain-stat-num">6<span class="pain-stat-unit"> 个</span></div><div class="pain-stat-label">提炼痛点</div></div>
@@ -512,6 +877,10 @@
 </div>
 
 <script>
+function scrollToProduct(id){
+  var el=document.getElementById(id);
+  if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.transition='box-shadow .3s';el.style.boxShadow='0 0 0 3px rgba(99,102,241,.3)';setTimeout(function(){el.style.boxShadow=''},1500);}
+}
 function switchMode(mode){
   document.getElementById('tab-nosource').className='mode-tab'+(mode==='nosource'?' active':'');
   document.getElementById('tab-factory').className='mode-tab'+(mode==='factory'?' active':'');
